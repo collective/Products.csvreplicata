@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<object name="portal_actions">
+ <action-provider name="portal_actions">
+  <action title="CSV import/export" action_id="csv"
+     category="object"
+     condition_expr="object/@@isCSVReplicable"
+     url_expr="string:${object_url}/@@csvreplicata" visible="True">
+   <permission>View</permission>
+  </action>
+ </action-provider>
+</object>

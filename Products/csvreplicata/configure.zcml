@@ -1,0 +1,54 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser"
+           xmlns:five="http://namespaces.zope.org/five">
+  
+  <include file="profiles.zcml" />
+
+  <!-- ##code-section configure.zcml -->
+  <adapter
+		for=".interfaces.ICSVReplicable"
+		provides=".interfaces.Icsvreplicata"
+		factory=".replicator.Replicator"
+		/>
+		
+  <browser:view
+        for="*"
+        name="isCSVReplicable"
+        permission="zope.Public"
+        class=".browser.isCSVReplicable"
+        />
+        
+  <browser:page
+       for=".interfaces.ICSVReplicable"
+       name="csvreplicata"
+       class=".browser.manager.ReplicationManager"
+       template="./browser/manage.pt"
+       permission="zope2.View"
+       />
+  <browser:page
+       for=".interfaces.ICSVReplicable"
+       name="csvimport"
+       class=".browser.manager.ReplicationManager"
+       attribute="doImport"
+       permission="zope2.View"
+       />
+  <browser:page
+       for=".interfaces.ICSVReplicable"
+       name="csvexport"
+       class=".browser.manager.ReplicationManager"
+       attribute="doExport"
+       permission="zope2.View"
+       />
+  <five:traversable class=".interfaces.ICSVReplicable"/>
+  
+  <five:implements
+            class="Products.ATContentTypes.content.folder.ATFolder"
+            interface=".interfaces.ICSVReplicable"
+        />
+  <five:implements
+            class="Products.ATContentTypes.content.topic.ATTopic"
+            interface=".interfaces.ICSVReplicable"
+        />
+  <!-- ##/code-section configure.zcml -->
+
+</configure>

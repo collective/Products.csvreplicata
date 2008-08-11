@@ -1,0 +1,191 @@
+<html	xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+		xmlns:tal="http://xml.zope.org/namespaces/tal"
+		xmlns:metal="http://xml.zope.org/namespaces/metal"
+		xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+		lang="en"
+		metal:use-macro="here/prefs_main_template/macros/master">
+
+<metal:block fill-slot="top_slot"
+             tal:define="dummy python:request.set('disable_border',1)" />
+
+<body>
+
+
+<div metal:fill-slot="prefs_configlet_main" i18n:domain="plone">
+    
+    
+
+	<a	href=""
+		class="link-parent"
+		tal:attributes="href string:$portal_url/plone_control_panel"
+		i18n:translate="label_up_to_plone_setup">
+		Up to Site Setup
+	</a>
+
+	<p class="documentDescription">
+		This is CSV Replicator settings section, you modify the default behaviour 
+		in the lists below. 
+	</p>
+
+
+	<form	style="float: left;"
+			tal:attributes="action python:here.absolute_url()+'/setCSVsettings'" 
+			method="post">
+
+		<fieldset style="float: left; margin-right: 1em;">
+			<legend>CSV Replicator Settings</legend>
+			<div class="field">
+				<div class="widget">
+					<label for="formElements">Encoding</label>
+					<div class="formHelp">Select the encoding of your file</div>
+					<input	type="text"
+							name="encoding"
+							tal:attributes="value here/portal_csvreplicatatool/encoding|None"/>
+		        </div>
+			</div>
+			<div class="field">
+				<div class="widget">
+					<label for="formElements">Delimiter</label>
+					<div class="formHelp">Select the delimiter of your file</div>
+					<input	type="text"
+							name="delimiter"
+							tal:attributes="value here/portal_csvreplicatatool/delimiter|None"/>
+		        </div>
+			</div>
+			<div class="field">
+				<div class="widget">
+					<label for="formElements">String delimiter</label>
+					<div class="formHelp">Select the string delimiter of your file</div>
+					<input	type="text"
+							name="stringdelimiter"
+							tal:attributes="value here/portal_csvreplicatatool/stringdelimiter|None"/>
+		        </div>
+			</div>
+			<div class="field">
+				<div class="widget">
+					<input class="context" type="submit" value="Save"/>
+				</div>
+			</div>	
+		</fieldset>
+	</form>
+
+	<form	style="float: left;"
+			tal:attributes="action python:here.absolute_url()+'/setExcludedFields'" 
+			method="post">
+
+		<fieldset style="float: left; margin-right: 1em;">
+			<legend>Fields and classes of Fields not handled by the CSV Import/Export</legend>
+			<div class="field">
+				<div class="widget">
+					<label for="formElements">Classes of fields</label>
+					<div class="formHelp">Select the classes of fields handled by the CSV Import/Export</div>
+					<textarea 	rows="5"
+								name="excludedfieldsclasses"
+								tal:content="python:'\n'.join(here.getExcludedfieldsclasses())">Fields Classes to exclude</textarea>
+				</div>
+			</div>	
+			<div class="field">
+				<div class="widget">
+					<label for="formElements">Fields</label>
+					<div class="formHelp">Select the fields handled by the CSV Import/Export</div>
+					<textarea	rows="5"
+								name="excludedfields"
+								tal:content="python:'\n'.join(here.getExcludedfields())">Fields to exclude</textarea>
+				</div>
+			</div>	
+            <div class="field">
+				<div class="widget">
+					<input class="context" type="submit" value="Save"/>
+				</div>
+			</div>
+		</fieldset>
+	</form>
+
+
+	<div class="visualClear"><!-- --></div>
+
+	<form	style="float: left;"
+			tal:attributes="action python:here.absolute_url()+'/setCSVHandledTypes'" 
+			method="post">
+
+		<fieldset style="float: left; margin-right: 1em;">
+			<legend>Types handled by the CSV Import/Export</legend>
+			<div class="field">
+				<div class="widget">
+					<div class="formHelp">Select the types handled by the CSV Import/Export</div>
+					<select	multiple
+							size="5"
+							class="noborder"
+                        	name="csvhandledtypes">
+                        <tal:block 	tal:define="types here/portal_csvreplicatatool/getPortalTypeNames"
+                    				tal:repeat="t types">
+                    		<option	tal:content="python:t[0]"
+                    				tal:condition="python:t[0] in here.replicabletypes.keys()"
+                    				tal:attributes="value python:t[1]" selected>Type Name</option>
+                    		<option	tal:content="python:t[0]"
+                    				tal:condition="python:not t[0] in here.replicabletypes.keys()"
+                    				tal:attributes="value python:t[1]">Type Name</option>	
+                    	</tal:block>
+					</select>
+				</div>
+			</div>
+            <div class="field">
+				<div class="widget">
+					<input class="context" type="submit" value="Save"/>
+				</div>
+			</div>
+		</fieldset>
+	</form>
+
+	
+	
+	<form	style="float: left;"
+			tal:attributes="action python:here.absolute_url()+'/setCSVHandledTypesSchematas'" 
+			method="post">
+
+		<fieldset style="float: left; margin-right: 1em;">
+			<legend>Types handled by the CSV Import/Export and their respectives schematas</legend>
+			<div class="field">
+				<div class="widget">
+					<div class="formHelp">Select the schematas handled by the CSV Import/Export for each selected types</div>
+            		<tal:block	tal:define="types python:here.getReplicableTypesSorted();"
+                			tal:repeat="t types">
+                		<tal:block tal:define="position repeat/t/number">
+                			<label for="formElements">
+                				<tal:block tal:content="python:t">Type Name</tal:block>
+                			</label>				
+							<select	multiple
+									size="5"
+									class="noborder"
+									tal:attributes="name python:'csvhandledschematas-'+str(position)">
+                    	    		<tal:block	tal:define="schematas python:here.getTypeSchematas(t)"
+                    							tal:repeat="s schematas">
+                    					<option	tal:content="python:s"
+                    							tal:condition="python:s in here.replicabletypes[t]"
+                    							tal:attributes="value python:s" selected>Schemata Name</option>
+                    					<option	tal:content="python:s"
+                    					        tal:condition="python:not s in here.replicabletypes[t]"
+                    							tal:attributes="value python:s">Schemata Name</option>
+                    				</tal:block>
+							</select>
+							<div class="visualClear"><!-- --></div>
+						</tal:block>
+					</tal:block>
+				</div>
+			</div>
+            <div class="field">
+				<div class="widget">
+					<input class="context" type="submit" value="Save"/>
+				</div>
+			</div>
+		</fieldset>
+	</form>
+	
+	<div class="visualClear"><!-- --></div>
+	
+	
+	
+</div>
+
+</body>
+</html>

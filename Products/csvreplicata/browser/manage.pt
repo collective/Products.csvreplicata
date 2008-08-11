@@ -1,0 +1,225 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="plone">
+<body>
+
+<metal:main fill-slot="main">
+    <tal:main-macro metal:define-macro="main"
+           tal:define="kssClassesView context/@@kss_field_decorator_view;
+                       getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;
+                       templateId template/getId;
+                       ">
+
+        <div tal:replace="structure provider:plone.abovecontenttitle" />
+
+        <h1 metal:use-macro="here/kss_generic_macros/macros/generic_title_view">
+          Title or id
+        </h1>
+
+		<form tal:condition="python:not(here.Type()=='Smart Folder')" action="@@csvimport" method="POST" enctype="multipart/form-data">
+			<fieldset style="float: left; margin-right: 1em;">
+				<legend for="formElements">Import</legend>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">CSV File</label>
+							<div class="formHelp">Pick the CSV File to be imported</div>
+							<input type="file" name="csvfile"/>
+							<span class="fieldRequired"
+				                title="Required"
+				                i18n:translate="label_required"
+				                i18n:attributes="title title_required;">
+				            </span>
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Encoding</label>
+							<div class="formHelp">Select the encoding of your file</div>
+							<input	type="text"
+									name="encoding"
+									tal:attributes="value here/portal_csvreplicatatool/encoding|None"/>
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Delimiter</label>
+							<div class="formHelp">Select the delimiter of your file</div>
+							<input	type="text"
+									name="delimiter"
+									tal:attributes="value here/portal_csvreplicatatool/delimiter|None"/>
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">String delimiter</label>
+							<div class="formHelp">Select the string delimiter of your file</div>
+							<input	type="text"
+									name="stringdelimiter"
+									tal:attributes="value here/portal_csvreplicatatool/stringdelimiter|None"/>
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Date/time format</label>
+							<div class="formHelp">Indicate the date / time format of your file</div>
+							<input 	type="text" 
+									name="datetimeformat" 
+									value="%d/%m/%Y"/>
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">	
+							<label for="formElements">Conflicts management</label>
+							<div class="formHelp">Choose the rule to apply if some conflicts are encountered</div>
+							<input type="radio" name="conflictrule" value="SERVER" checked />Server wins OR <input type="radio" name="conflictrule" value="LOCAL" />File wins (WARNING: it might produce unwanted data overwritting)
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Workflow transition to new objects</label>
+							<div class="formHelp">Choose the workflow transition for the new objects</div>
+							<select name="wf_transition">
+									<option value="None" selected>None</option>
+						    		<tal:loop tal:repeat="t view/getAllWorkflowTransitions">
+						    			<option tal:content="t" tal:attributes="value t">transition</option>
+						    		</tal:loop>
+						    </select>				       
+						</div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Import files</label>
+							<div class="formHelp">Submitted file must a zip archive, attached files will be updated only if they have been renamed</div>
+							<input type="radio" name="importfiles" value="Yes" />Yes
+						    <input type="radio" name="importfiles" value="No" checked />No
+						</div>
+					</div>
+					<div class="field">
+						<div class="widget">
+						    <label for="formElements">Import vocabulary value</label>
+						    <div class="formHelp">Select "Yes" to provide the value of the vocabulary instead of the key.</div>
+						    <input type="radio" name="vocabularyvalue" value="Yes" />Yes
+						    <input type="radio" name="vocabularyvalue" value="No" checked />No
+						</div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<input type="submit" class="context" value="Import"/>
+						</div>
+				</div>
+			</fieldset>
+		</form>
+	<div class="visualClear"><!-- --></div>
+
+		<form action="@@csvexport" method="POST">
+			<fieldset style="float: left; margin-right: 1em;">
+				<legend>Export</legend>
+					<tal:folderonly tal:condition="python:not(here.Type()=='Smart Folder')">
+						<div class="field">
+							<div class="widget">
+								<label for="formElements">Workflow states</label>
+								<div class="formHelp">Select "Any" to get all.</div>
+								<select name="wf_states" multiple size="5">
+					        		<option value="Any" selected>Any</option>
+					    			<tal:loop tal:repeat="s view/getAllWorkflowStates">
+					    				<option tal:content="s" tal:attributes="value s">state</option>
+					    			</tal:loop>
+					    		</select>
+							</div>
+						</div>
+						<div class="field">
+							<div class="widget">
+								<label for="formElements">Depth</label>
+								<div class="formHelp">Enter 0 to get all.</div>
+								<input type="text" name="depth" value="0"/>
+							</div>
+						</div>
+					</tal:folderonly>    
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Encoding</label>
+							<div class="formHelp">Select the encoding of your file</div>
+							<input	type="text"
+									name="encoding"
+									tal:attributes="value here/portal_csvreplicatatool/encoding|None"/>
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Delimiter</label>
+							<div class="formHelp">Select the delimiter of your file</div>
+							<input	type="text"
+									name="delimiter"
+									tal:attributes="value here/portal_csvreplicatatool/delimiter|None"/>
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">String delimiter</label>
+							<div class="formHelp">Select the string delimiter of your file</div>
+							<input	type="text"
+									name="stringdelimiter"
+									tal:attributes="value here/portal_csvreplicatatool/stringdelimiter|None"/>
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Date/time format</label>
+							<div class="formHelp">Indicate the date / time format of your file</div>
+							<input 	type="text" 
+									name="datetimeformat" 
+									value="%d/%m/%Y"/>
+				        </div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Export attached files</label>
+							<div class="formHelp">Attached files will be put at the root of your resulting zip file. Mind possible files name conflict.</div>
+							<input type="radio" name="exportfiles" value="Yes" />Yes
+				    		<input type="radio" name="exportfiles" value="No" checked />No
+						</div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<label for="formElements">Types handled</label>
+							<div class="formHelp">Select/Unselect the types of content that you want to export.</div>
+							<select	multiple
+									size="5"
+									class="noborder"
+                        			name="exportable_content_types">
+									<tal:block	tal:define="types here/portal_csvreplicatatool/getPortalTypeNames"
+	               								tal:repeat="t types">
+										<option	tal:content="python:t[0]"
+                    							tal:condition="python:t[0] in here.portal_csvreplicatatool.replicabletypes.keys()"
+                    							tal:attributes="value python:t[1]" selected>Type Name</option>
+                					</tal:block>
+                			</select>
+						</div>
+					</div>
+					
+				    <div class="field">
+						<div class="widget">
+						    <label for="formElements">Export vocabulary value</label>
+						    <div class="formHelp">Select "Yes" to get the value of the vocabulary instead of the key.</div>
+						    <input type="radio" name="vocabularyvalue" value="Yes" />Yes
+						    <input type="radio" name="vocabularyvalue" value="No" checked />No
+						</div>
+					</div>
+					<div class="field">
+						<div class="widget">
+							<input type="submit" class="context" value="Export"/>
+						</div>
+				</div>
+			</fieldset>
+		</form>
+        <div tal:replace="structure provider:plone.belowcontentbody" />
+
+    </tal:main-macro>
+</metal:main>
+
+</body>
+</html>

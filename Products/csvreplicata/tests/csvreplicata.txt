@@ -1,0 +1,47 @@
+CSV REplicator
+=========================
+
+Overview
+--------
+TO BE COMPLETED
+    
+Usage
+---------------
+
+    >>> import re
+    >>> self.setRoles(['Manager'])
+    >>> id=self.folder.invokeFactory('Document', id='doc1', title="Document 1")
+    >>> id=self.folder.invokeFactory('Document', id='doc2', title="Document 2")
+    >>> id=self.folder.invokeFactory('Document', id='doc3', title="Document 'super' 3")
+    >>> id=self.folder.invokeFactory('Document', id='doc4', title="Document 4")
+    >>> id=self.folder.invokeFactory('Folder', id='sub1', title="Sous dossier 1")
+    >>> id=self.folder.sub1.invokeFactory('Document', id='doc11', title="Document 1 du dossier 1")
+    >>> self.portal.portal_csvreplicatatool.getEncoding()
+    'UTF-8'
+    >>> self.portal.portal_csvreplicatatool.getDelimiter()
+    ';'
+    >>> self.portal.portal_csvreplicatatool.getStringdelimiter()
+    '"'
+    >>> self.portal.portal_csvreplicatatool.replicabletypes = {'Document':['default'], 'Folder':['default']}
+    >>> from Products.csvreplicata.interfaces import Icsvreplicata
+    >>> replicator = Icsvreplicata(self.folder)
+    >>> re.sub(';\d{14}',';YYYYMMDDhhmmss', replicator.csvexport(exportable_content_types=['Document', 'Folder']))
+    '"/plone/Members/test_user_1_";YYYYMMDDhhmmss\r\n"parent";"id";"type";"title";"description";"text"\r\n"Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"\r\n"";"doc1";"Document";"Document 1";"";""\r\n"";"doc2";"Document";"Document 2";"";""\r\n"";"doc3";"Document";"Document \'super\' 3";"";""\r\n"";"doc4";"Document";"Document 4";"";""\r\n"parent";"id";"type";"title";"description"\r\n"Parent folder";"Identifier";"Content type";"Title";"label_description"\r\n"";"sub1";"Folder";"Sous dossier 1";""\r\n'
+    >>> re.sub(';\d{14}',';YYYYMMDDhhmmss', replicator.csvexport(depth=2, exportable_content_types=['Document', 'Folder']))
+    '"/plone/Members/test_user_1_";YYYYMMDDhhmmss\r\n"parent";"id";"type";"title";"description";"text"\r\n"Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"\r\n"";"doc1";"Document";"Document 1";"";""\r\n"";"doc2";"Document";"Document 2";"";""\r\n"";"doc3";"Document";"Document \'super\' 3";"";""\r\n"";"doc4";"Document";"Document 4";"";""\r\n"parent";"id";"type";"title";"description"\r\n"Parent folder";"Identifier";"Content type";"Title";"label_description"\r\n"";"sub1";"Folder";"Sous dossier 1";""\r\n"parent";"id";"type";"title";"description";"text"\r\n"Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"\r\n"sub1";"doc11";"Document";"Document 1 du dossier 1";"";""\r\n'
+    
+    >>> import os
+    >>> from Globals import package_home
+    >>> from Products.csvreplicata.tests import GLOBALS
+    >>> path = os.path.join(package_home(GLOBALS), 'test_file.csv')
+    >>> fd = open(path, 'rb')
+    >>> replicator.csvimport(fd, datetimeformat='%d/%m/%Y')
+    (1, 1, DateTime('2050/10/20 12:12:00 GMT+1'), [])
+    >>> fd.close()
+    >>> self.folder.doc1.Title()
+    'Document 1 NEW'
+    >>> self.folder.doc5
+    <ATDocument at /plone/Members/test_user_1_/doc5>
+
+    
+

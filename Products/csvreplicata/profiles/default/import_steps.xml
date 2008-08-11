@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<import-steps>
+
+ <import-step 
+    id="csvreplicata-Hide-Tools-From-Navigation" 
+    handler="Products.csvreplicata.setuphandlers.setupHideToolsFromNavigation"
+    title="Hide Custom tools from Navigation for csvreplicata"
+    version="2008-08-11T11:02:34.197145">
+   <dependency step="csvreplicata-QI-dependencies"/>
+   Hides custom tools from navigation tree for csvreplicata
+ </import-step>
+
+ <import-step 
+    id="csvreplicata-Fix-Tools" 
+    handler="Products.csvreplicata.setuphandlers.fixTools"
+    title="Fix tools for csvreplicata"
+    version="2008-08-11T11:02:34.197145">
+   <dependency step="2008-08-11T11:02:34.197145-QI-dependencies"/>
+   call initializeArchetyps for tools in csvreplicata
+ </import-step>
+ 
+ 
+ <import-step 
+    id="csvreplicata-Update-RoleMappings" 
+    handler="Products.csvreplicata.setuphandlers.updateRoleMappings"
+    title="Update Workflow role mappings for csvreplicata"
+    version="2008-08-11T11:02:34.197145">
+   <dependency step="csvreplicata-QI-dependencies"/>
+   updates the workflow role mappings for csvreplicata
+ </import-step>
+
+ <import-step 
+    id="csvreplicata-postInstall" 
+    handler="Products.csvreplicata.setuphandlers.postInstall"
+    title="manual coded post-install for csvreplicata"
+    version="2008-08-11T11:02:34.197145">
+   <dependency step="csvreplicata-QI-dependencies"/>
+   manual coded post-install for csvreplicata
+ </import-step>
+
+<!-- ##code-section ADDITIONALSTEPS -->
+<!-- ##/code-section ADDITIONALSTEPS --> 
+
+</import-steps>
+ 
