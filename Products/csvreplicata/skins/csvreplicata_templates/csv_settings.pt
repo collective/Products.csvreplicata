@@ -78,7 +78,7 @@
 			<div class="field">
 				<div class="widget">
 					<label for="formElements">Classes of fields</label>
-					<div class="formHelp">Select the classes of fields handled by the CSV Import/Export</div>
+					<div class="formHelp">Select the classes of fields not handled by the CSV Import/Export</div>
 					<textarea 	rows="5"
 								name="excludedfieldsclasses"
 								tal:content="python:'\n'.join(here.getExcludedfieldsclasses())">Fields Classes to exclude</textarea>
@@ -87,7 +87,7 @@
 			<div class="field">
 				<div class="widget">
 					<label for="formElements">Fields</label>
-					<div class="formHelp">Select the fields handled by the CSV Import/Export</div>
+					<div class="formHelp">Select the fields not handled by the CSV Import/Export</div>
 					<textarea	rows="5"
 								name="excludedfields"
 								tal:content="python:'\n'.join(here.getExcludedfields())">Fields to exclude</textarea>
