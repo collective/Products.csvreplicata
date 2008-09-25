@@ -174,8 +174,8 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     def setExcludedFields(self, REQUEST):
         """
         """
-        self.setExcludedfieldsclasses(REQUEST.get('excludedfieldsclasses').split('n'));
-        self.setExcludedfields(REQUEST.get('excludedfields').split('n'));
+        self.setExcludedfieldsclasses(REQUEST.get('excludedfieldsclasses').split('\n'));
+        self.setExcludedfields(REQUEST.get('excludedfields').split('\n'));
 
         # Redirection of the page now that the treatment is done
         REQUEST.RESPONSE.redirect(self.absolute_url()+'/csv_settings')

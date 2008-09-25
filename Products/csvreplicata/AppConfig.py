@@ -13,19 +13,20 @@ HANDLERS={'Products.Archetypes.Field.StringField': {'handler_class' : base.CSVSt
           'Products.Archetypes.Field.DateTimeField': {'handler_class' : base.CSVDateTime(), 'file' : False},
           'Products.Archetypes.Field.ReferenceField': {'handler_class' : reference.CSVReference(), 'file' : False},
           'Products.Archetypes.Field.FileField': {'handler_class' : file.CSVFile(), 'file' : True},
+          'Products.Archetypes.Field.ImageField': {'handler_class' : file.CSVFile(), 'file' : True},
           'plone.app.blob.subtypes.file.ExtensionBlobField': {'handler_class' : file.CSVFile(), 'file' : True},
           }
 
 default_handler = {'handler_class' : base.CSVdefault(), 'file' : False}
-
+# Load custom handlers
+try:
+    from handlers.custom.CustomHandlers import *
+except ImportError:
+    CUSTOMHANDLERS={}
+        
 def getHandlers():
     """
     """
-    # Load custom handlers
-    try:
-        from handlers.custom.CustomHandlers import *
-    except ImportError:
-        CUSTOMHANDLERS={}
     all_h=HANDLERS
     for h in CUSTOMHANDLERS.keys():
         all_h[h]=CUSTOMHANDLERS[h]

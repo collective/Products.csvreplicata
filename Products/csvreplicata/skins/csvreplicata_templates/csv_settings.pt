@@ -23,7 +23,7 @@
 	</a>
 
 	<p class="documentDescription">
-		This is CSV Replicator settings section, you modify the default behaviour 
+		This is CSV Replicata settings section, you modify the default behaviour 
 		in the lists below. 
 	</p>
 
@@ -33,7 +33,7 @@
 			method="post">
 
 		<fieldset style="float: left; margin-right: 1em;">
-			<legend>CSV Replicator Settings</legend>
+			<legend>CSV Replicata Settings</legend>
 			<div class="field">
 				<div class="widget">
 					<label for="formElements">Encoding</label>

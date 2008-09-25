@@ -29,7 +29,8 @@ class CSVFile(CSVdefault):
         else:
             filename = f.filename
             if zip is not None:
-                if obj.Schema().getField(field).getType()=="plone.app.blob.subtypes.file.ExtensionBlobField":
+                logger.error(obj.Schema().getField(field).getType())
+                if obj.Schema().getField(field).getType() in ("plone.app.blob.subtypes.file.ExtensionBlobField", "Products.Archetypes.Field.ImageField"):
                     f=f.data
                 zip.writestr(filename, f)
             return filename

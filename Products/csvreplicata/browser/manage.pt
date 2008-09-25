@@ -80,8 +80,8 @@
 					</div>
 					<div class="field">
 						<div class="widget">
-							<label for="formElements">Workflow transition to new objects</label>
-							<div class="formHelp">Choose the workflow transition for the new objects</div>
+							<label for="formElements">Workflow transition for new objects</label>
+							<div class="formHelp">Choose the workflow transition to apply on new objects</div>
 							<select name="wf_transition">
 									<option value="None" selected>None</option>
 						    		<tal:loop tal:repeat="t view/getAllWorkflowTransitions">
