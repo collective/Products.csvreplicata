@@ -9,6 +9,9 @@
 __author__ = """Eric BREHAULT <eric.brehault@makina-corpus.org>"""
 __docformat__ = 'plaintext'
 
+from zope import interface
+from Products.csvreplicata.interfaces import ICSVDefault
+
 from DateTime import DateTime
 from time import strptime
 
@@ -22,6 +25,7 @@ logger = logging.getLogger('HANDLER')
 class CSVdefault(object):
     """
     """
+    interface.implements(ICSVDefault)
     
     def get(self, obj, field, context=None):
         """

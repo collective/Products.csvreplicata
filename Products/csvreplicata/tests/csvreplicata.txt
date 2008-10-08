@@ -1,11 +1,133 @@
-CSV REplicator
-=========================
+CSV Replicator
+==============
 
 Overview
 --------
-TO BE COMPLETED
+A description of csv replicata here.
+
+
+Interfaces
+----------
+
+    >>> from zope.interface.verify import verifyClass
+    >>> from zope.interface import implements
+    >>> from Products.csvreplicata.handlers.base import CSVdefault
+    >>> from Products.csvreplicata.interfaces import ICSVDefault
+
+ Verify implementation
+
+    >>> verifyClass(ICSVDefault, CSVdefault)
+    True
+
+
+default handlers
+----------------
+
+    >>> self.portal.portal_csvreplicatatool.getHandlers() 
+    {'Products.Archetypes.Field.DateTimeField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.base.CSVDateTime object at ...,
+     'file': False},
+     'Products.Archetypes.Field.IntegerField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.base.CSVInteger object at ...,
+     'file': False},
+     'default_handler':
+     {'handler_class': <Products.csvreplicata.handlers.base.CSVdefault ...,
+     'file': False},
+     'Products.Archetypes.Field.FileField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.file.CSVFile object ...,
+     'file': True},
+     'Products.Archetypes.Field.BooleanField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.base.CSVBoolean object at ...,
+     'file': False},
+     'Products.Archetypes.Field.TextField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.base.CSVText object at ...,
+     'file': False},
+     'Products.Archetypes.Field.LinesField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.base.CSVLines object at ...,
+     'file': False},
+     'Products.Archetypes.Field.ImageField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.file.CSVFile object at ...,
+     'file': True},
+     'Products.Archetypes.Field.FloatField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.base.CSVFloat object at ...,
+     'file': False},
+     'plone.app.blob.subtypes.file.ExtensionBlobField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.file.CSVFile object at ...,
+     'file': True},
+     'Products.Archetypes.Field.StringField':
+     {'handler_class':
+     <Products.csvreplicata.handlers.base.CSVString object at ...,
+     'file': False},
+     'Products.Archetypes.Field.ReferenceField': {'handler_class':
+     <Products.csvreplicata.handlers.reference.CSVReference object at ...,
+     'file': False}}
+
+
+what happened with csvreplicata during import/export if MyFiel is not in tool's
+handlers. replicator.py aplly default_handler on it:
+
+{'default_handler':
+ {'handler_class': <Products.csvreplicata.handlers.base.CSVdefault ...,'file': False}}
+
+
+provide a new handler
+---------------------
+A developper could write his proper widget for a new ATCT based type.
+Of course he wants to provide it for the csvreplicatatool.
+
+then there is two cases:
+
+ - his new field can be provide by an existing handler like CSVInt by example.
+ 
+ - he want to provide a new handler.
+ 
+    >>> class MyCSV(CSVdefault) :
+    ...     implements(ICSVDefault)
+    ...
+    ...     def get(self, obj, field, context=None):
+    ...         pass
+    ...          
+    ...     def set(self, obj, field, value, context=None):
+    ...         pass
+
+    >>> verifyClass(ICSVDefault, MyCSV)
+    True
+ 
+ ok now we could register a new handler to csvrplicatool and the way is the same
+ in both cases.
+ 
+ we have to set a new handler to the tool by the appropriate method.
+ 
+    >>> self.portal.portal_csvreplicatatool.setHandler('Myproduct.Field.MyField', {'handler_class': MyCSV(), 'file': False})
+    >>> 'Myproduct.Field.MyField' in self.portal.portal_csvreplicatatool.getHandlers()
+    True
     
-Usage
+ of course setHandler() permit to edit an existing handler too !
+ 
+    >>> class AnotherMyCSV(MyCSV) :
+    ...     pass
+ 
+    >>> self.portal.portal_csvreplicatatool.setHandler('Myproduct.Field.MyField', {'handler_class': AnotherMyCSV(), 'file': False})
+    >>> self.portal.portal_csvreplicatatool.getHandlers()['Myproduct.Field.MyField']
+    {'handler_class': <AnotherMyCSV object at ..., 'file': False}
+ 
+ now we can aso delete this handler
+ 
+    >>> self.portal.portal_csvreplicatatool.delHandler('Myproduct.Field.MyField')
+    >>> 'Myproduct.Field.MyField' in self.portal.portal_csvreplicatatool.getHandlers()
+    False
+
+
+Export / Import
 ---------------
 
     >>> import re

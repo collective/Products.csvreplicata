@@ -2,14 +2,29 @@
 
 from zope.interface import Interface
 
-##code-section HEAD
-##/code-section HEAD
+
+class ICSVDefault(Interface):
+    """CSV Default.
+    
+    A CSV Field defaut Interface
+    """
+    
+    def get(obj, field, context=None):
+        """A getter."""
+    
+    def set(obj, field, value, context=None):
+        """ A setter."""
+    
+    def store(field, obj, value):
+        """Store field value."""
+
+
 
 class IcsvreplicataTool(Interface):
     """Marker interface for .csvreplicataTool.csvreplicataTool
     """
 
-##code-section FOOT
+
 class ICSVReplicable(Interface):
     """Marker interface for replicable folders
     """
@@ -17,5 +32,3 @@ class ICSVReplicable(Interface):
 class Icsvreplicata(Interface):
     """ adapter interface
     """
-
-##/code-section FOOT

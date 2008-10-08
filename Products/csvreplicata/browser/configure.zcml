@@ -1,0 +1,34 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser"
+           xmlns:zcml="http://namespaces.zope.org/zcml">
+
+  <browser:view
+        for="*"
+        name="isCSVReplicable"
+        permission="zope.Public"
+        class=".isCSVReplicable"
+        />
+        
+  <browser:page
+       for="Products.csvreplicata.interfaces.ICSVReplicable"
+       name="csvreplicata"
+       class=".manager.ReplicationManager"
+       template="manage.pt"
+       permission="zope2.View"
+       />
+  <browser:page
+       for="Products.csvreplicata.interfaces.ICSVReplicable"
+       name="csvimport"
+       class=".manager.ReplicationManager"
+       attribute="doImport"
+       permission="zope2.View"
+       />
+  <browser:page
+       for="Products.csvreplicata.interfaces.ICSVReplicable"
+       name="csvexport"
+       class=".manager.ReplicationManager"
+       attribute="doExport"
+       permission="zope2.View"
+       />
+
+</configure>

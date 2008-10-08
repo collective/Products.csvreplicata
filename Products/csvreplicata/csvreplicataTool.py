@@ -12,6 +12,7 @@
 __author__ = """Eric BREHAULT <eric.brehault@makina-corpus.org>"""
 __docformat__ = 'plaintext'
 
+from ZODB.PersistentMapping import PersistentMapping
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.atapi import *
 from zope.interface import implements
@@ -103,6 +104,8 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     _at_rename_after_creation = True
 
     schema = csvreplicataTool_schema
+    
+    handlers = PersistentMapping
 
     ##code-section class-header #fill in your manual code here
     ##/code-section class-header
@@ -118,7 +121,10 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         self.replicabletypes = {}
         ##/code-section constructor-footer
 
-
+    def manage_afterAdd(self, item, container):
+        """ initialize handlers with appconfig HANDLERS values"""
+        self.handlers = HANDLERS
+        
     # tool should not appear in portal_catalog
     def at_post_edit_script(self):
         self.unindexObject()
@@ -243,7 +249,20 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         """
         return self.replicabletypes
 
-
+    def getHandlers(self):
+        """
+        """
+        return self.handlers
+    
+    def setHandler(self, key, value):
+        """
+        """
+        self.handlers[key] = value
+    
+    def delHandler(self, key):
+        """
+        """
+        del(self.handlers[key])
 
 registerType(csvreplicataTool, PROJECTNAME)
 # end of class csvreplicataTool

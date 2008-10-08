@@ -23,7 +23,8 @@ from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.event import ObjectEditedEvent
 
 from interfaces import Icsvreplicata
-from config import getHandlers, default_handler
+#from config import getHandlers, default_handler
+
 from exceptions import *
 from Products.csvreplicata import getPortalTypes
 
@@ -149,11 +150,13 @@ class Replicator(object):
                 protected = False
                 
         # update object
+        csvtool = getToolByName(self.context, "portal_csvreplicatatool")
+        handlers = csvtool.getHandlers()
         i = 3
         for f in specific_fields:
             if f is not None and f!="":
                 type = obj.Schema().getField(f).getType()
-                h=getHandlers().get(type, default_handler)
+                h = handlers.get(type, handlers['default_handler'])
                 handler = h['handler_class']
                 old_value = handler.get(obj, f, context=self)
                 if old_value != row[i]:
@@ -293,10 +296,12 @@ class Replicator(object):
         # add the 3 standard first columns
         values = [parent_path, obj.id, obj.getTypeInfo().id]
         
+        csvtool = getToolByName(self.context, "portal_csvreplicatatool")
+        handlers = csvtool.getHandlers()
         # add specific columns
         for f in specific_fields:
             type = obj.Schema().getField(f).getType()
-            h=getHandlers().get(type, default_handler)
+            h = handlers.get(type, handlers['default_handler'])
             handler = h['handler_class']
             if h['file']:
                 v = handler.get(obj, f, context=self, zip=zip)
