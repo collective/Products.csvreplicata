@@ -24,7 +24,7 @@ class CSVFile(CSVdefault):
         """
         """
         f = obj.Schema().getField(field).get(obj)
-        if f is None:
+        if not f :
             return ''
         else:
             filename = f.filename
@@ -46,5 +46,4 @@ class CSVFile(CSVdefault):
                 obj.Schema().getField(field).get(obj).setFilename(value)
             else:
                 raise csvreplicataPermissionException, "Insufficient privileges to modify this object and/or field"
-        
         

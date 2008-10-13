@@ -73,7 +73,7 @@ default handlers
 
 
 what happened with csvreplicata during import/export if MyField is not in tool's
-handlers. replicator.py aplly default_handler on it:
+handlers. replicator.py apllies default_handler on it:
 
 {'default_handler':
  {'handler_class': base.CSVdefault(),'file': False}}
@@ -86,7 +86,7 @@ Of course he wants to provide it to the csvreplicata tool.
 
 then there is two cases:
 
- - his new field can be provide by an existing handler like CSVInt by example.
+ - his new field can be provided by an existing handler like CSVInt by example.
  
  - he want to provide a new handler.
  
@@ -105,7 +105,7 @@ then there is two cases:
  ok now we could register a new handler to csvrplica tool and the way is the same
  in both cases.
  
- we have to set a new handler to the tool by the appropriate method.
+ we have to set a new handler to the tool with the appropriated method.
  
     >>> self.portal.portal_csvreplicatatool.setHandler('Myproduct.Field.MyField',
     ... {'handler_class': MyCSV(), 'file': False})
@@ -114,7 +114,7 @@ then there is two cases:
     ... in self.portal.portal_csvreplicatatool.getHandlers()
     True
     
- of course setHandler() permit to edit an existing handler too !
+ of course setHandler() permits to edit an existing handler too !
  
     >>> class AnotherMyCSV(MyCSV) :
     ...     pass
