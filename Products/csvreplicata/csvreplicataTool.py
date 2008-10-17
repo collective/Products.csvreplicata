@@ -257,7 +257,11 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     def setHandler(self, key, value):
         """
         """
-        self.handlers[key] = value
+        if not self.handlers:
+            self.handlers = HANDLERS
+        h = self.handlers
+        h[key] = value
+        self.handlers = h
     
     def delHandler(self, key):
         """
