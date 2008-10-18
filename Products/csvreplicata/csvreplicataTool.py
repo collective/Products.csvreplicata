@@ -119,6 +119,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         ##code-section constructor-footer #fill in your manual code here
         self.setTitle('CSV Replicator tool')
         self.replicabletypes = {}
+        self.handlers = {}
         ##/code-section constructor-footer
 
     def manage_afterAdd(self, item, container):
@@ -257,11 +258,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     def setHandler(self, key, value):
         """
         """
-        if not self.handlers:
-            self.handlers = HANDLERS
-        h = self.handlers
-        h[key] = value
-        self.handlers = h
+        self.handlers[key] = value
     
     def delHandler(self, key):
         """
