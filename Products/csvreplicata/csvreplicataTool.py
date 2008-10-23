@@ -165,7 +165,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         for t in newreplicabletypes :
             newreplicabletypestempdict[t] = []
             if (not currentreplicablestypes.has_key(t)):
-                    currentreplicablestypes[t] = []
+                    currentreplicablestypes[t] = ['default',]
 
         # removal of the types that are not anymore replicables
         for k, v in currentreplicablestypes.items():
