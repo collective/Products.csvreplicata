@@ -67,7 +67,8 @@ schema = Schema((
     ),
     LinesField(
         name='excludedfields',
-        default=['id', 'locallyAllowedTypes', 'constrainTypesMode', 'immediatelyAddableTypes'],
+        default=['id', 'locallyAllowedTypes', 'constrainTypesMode',
+                 'immediatelyAddableTypes'],
         widget=LinesField._properties['widget'](
             label='Excludedfields',
             label_msgid='csvreplicata_label_excludedfields',
@@ -156,7 +157,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         # Get of the various replicabletypes current and new)
         newreplicabletypes = REQUEST.get('csvhandledtypes')
         if (not type(newreplicabletypes) is list):
-            newreplicabletypes=[newreplicabletypes]
+            newreplicabletypes = [newreplicabletypes]
         currentreplicablestypes = self.replicabletypes
 
         # Addition of the new replicable types, by default a new empty list
@@ -165,7 +166,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         for t in newreplicabletypes :
             newreplicabletypestempdict[t] = []
             if (not currentreplicablestypes.has_key(t)):
-                    currentreplicablestypes[t] = ['default',]
+                    currentreplicablestypes[t] = ['default', ]
 
         # removal of the types that are not anymore replicables
         for k, v in currentreplicablestypes.items():
@@ -181,7 +182,8 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     def setExcludedFields(self, REQUEST):
         """
         """
-        self.setExcludedfieldsclasses(REQUEST.get('excludedfieldsclasses').split('\n'));
+        self.setExcludedfieldsclasses(
+            REQUEST.get('excludedfieldsclasses').split('\n'));
         self.setExcludedfields(REQUEST.get('excludedfields').split('\n'));
 
         # Redirection of the page now that the treatment is done
@@ -192,7 +194,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         """
         l = getPortalTypes(self).keys()
         l.sort()
-        return [(k,k) for k in l]
+        return [(k, k) for k in l]
 
     def getReplicableTypesSorted(self):
         """
@@ -218,7 +220,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         """
         currentreplicablestypes = self.replicabletypes
 
-        i=0
+        i = 0
         for ptn in self.getReplicableTypesSorted():
             i += 1
             if (type(ptn) is tuple):
@@ -229,7 +231,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
             r = REQUEST.get('csvhandledschematas-'+str(i))
             if r:
                 if (not type(r) is list):
-                    r=[r]
+                    r = [r]
                 currentreplicablestypes[t] = r
             else :
                 if currentreplicablestypes.has_key(t):

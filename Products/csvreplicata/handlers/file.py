@@ -29,14 +29,18 @@ class CSVFile(CSVdefault):
         else:
             filename = f.filename
             if zip is not None:
-                logger.error(obj.Schema().getField(field).getType())
-                if obj.Schema().getField(field).getType() in ("plone.app.blob.subtypes.file.ExtensionBlobField", "Products.Archetypes.Field.ImageField"):
-                    f=f.data
+                #logger.error(obj.Schema().getField(field).getType())
+                if obj.Schema().getField(field).getType() in \
+                ("plone.app.blob.subtypes.file.ExtensionBlobField",
+                 "Products.Archetypes.Field.FileField",
+                 "Products.Archetypes.Field.ImageField"):
+                    
+                    f = f.data
                 zip.writestr(filename, f)
             return filename
     
-    def set(self, obj, field, value, zip=None):
-        if value=='':
+    def set(self, obj, field, value, context=None, zip=None):
+        if value == '':
             raise csvreplicataException, "No filename for %s" % (field)
         elif zip is None:
             raise csvreplicataException, "No zip file provided"
@@ -45,5 +49,6 @@ class CSVFile(CSVdefault):
                 obj.Schema().getField(field).set(obj, zip.read(value))
                 obj.Schema().getField(field).get(obj).setFilename(value)
             else:
-                raise csvreplicataPermissionException, "Insufficient privileges to modify this object and/or field"
+                raise csvreplicataPermissionException, \
+                "Insufficient privileges to modify this object and/or field"
         

@@ -9,3 +9,6 @@ class csvreplicataConflictException(Exception):
 
 class csvreplicataPermissionException(Exception):
     pass
+
+class csvreplicataNonExistentContainer(Exception):
+    pass
