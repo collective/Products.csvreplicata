@@ -19,6 +19,18 @@ class ICSVDefault(Interface):
         """Store field value."""
 
 
+class ICSVFile(Interface):
+    """CSV File.
+    
+    A CSV File defaut Interface
+    """
+    
+    def get(obj, field, context=None, zip=None):
+        """A getter."""
+    
+    def set(obj, field, value, context=None, zip=None):
+        """ A setter."""
+
 
 class IcsvreplicataTool(Interface):
     """Marker interface for .csvreplicataTool.csvreplicataTool

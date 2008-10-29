@@ -37,7 +37,7 @@ class CSVdefault(object):
             return str(v)
     
     def set(self, obj, field, value, context=None):
-        if value=='':
+        if value == '':
             value = None
         self.store(field, obj, value)
         
@@ -48,7 +48,8 @@ class CSVdefault(object):
         if obj.Schema().getField(field).writeable(obj):
             obj.Schema().getField(field).set(obj, value)
         else:
-            raise csvreplicataPermissionException, "Insufficient privileges to modify this object and/or field"
+            raise csvreplicataPermissionException, \
+            "Insufficient privileges to modify this object and/or field"
         
 class CSVString(CSVdefault):
     """
@@ -205,7 +206,7 @@ class CSVDateTime(CSVdefault):
         else:
             format = context.datetimeformat
             
-        if value=='':
+        if value == '':
             value = None
         else:
             try:
@@ -213,4 +214,4 @@ class CSVDateTime(CSVdefault):
                 value = DateTime(dt[0], dt[1], dt[2], dt[3], dt[4], dt[5])
                 self.store(field, obj, value)
             except DateTime.DateTimeError, e:
-                raise csvreplicataException, v+" is not a valid date/time"
+                raise csvreplicataException, v + " is not a valid date/time"

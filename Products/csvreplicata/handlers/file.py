@@ -9,7 +9,12 @@
 __author__ = """Eric BREHAULT <eric.brehault@makina-corpus.org>"""
 __docformat__ = 'plaintext'
 
+
+from zope import interface
+
 from Products.csvreplicata.exceptions import *
+from Products.csvreplicata.interfaces import ICSVFile
+
 from base import CSVdefault
 
 import logging
@@ -19,6 +24,7 @@ logger = logging.getLogger('HANDLER')
 class CSVFile(CSVdefault):
     """
     """
+    interface.implements(ICSVFile)
     
     def get(self, obj, field, context=None, zip=None):
         """

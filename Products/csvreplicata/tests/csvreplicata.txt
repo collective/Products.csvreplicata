@@ -13,13 +13,15 @@ import interfaces and classes ::
     >>> from zope.interface.verify import verifyClass
     >>> from zope.interface import implements
     >>> from Products.csvreplicata.handlers.base import CSVdefault
-    >>> from Products.csvreplicata.interfaces import ICSVDefault
+    >>> from Products.csvreplicata.handlers.file import CSVFile
+    >>> from Products.csvreplicata.interfaces import ICSVDefault, ICSVFile
 
 Verify implementation ::
 
     >>> verifyClass(ICSVDefault, CSVdefault)
     True
-
+    >>> verifyClass(ICSVFile, CSVFile)
+    True
 
 Default handlers
 ----------------

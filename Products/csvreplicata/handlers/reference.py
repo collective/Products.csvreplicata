@@ -28,7 +28,7 @@ class CSVReference(CSVdefault):
             return ''
         else:
             current = "/".join(obj.getPhysicalPath())+"/"
-            l=[]
+            l = []
             for o in v:
                 path = "/".join(o.getPhysicalPath())
                 if path.startswith(current):
@@ -38,7 +38,7 @@ class CSVReference(CSVdefault):
             return '\n'.join(l)
     
     def set(self, obj, field, value, context=None):
-        if value=='':
+        if value == '':
             ref = []
         else:
             value = value.split('\n')
@@ -48,6 +48,8 @@ class CSVReference(CSVdefault):
                     target = obj.unrestrictedTraverse(path)
                     ref.append(target)
                 except Exception:
-                    raise csvreplicataBrokenReferenceException, path+" cannot be found"
+                    raise csvreplicataBrokenReferenceException, path + \
+                    " cannot be found"
+                
         self.store(field, obj, ref)
         
