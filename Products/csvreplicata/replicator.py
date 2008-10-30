@@ -32,7 +32,7 @@ import logging
 logger = logging.getLogger('CSV REPLICATOR')
 
 class Replicator(object):
-    """ A georeferenced object exposable through WFS
+    """ a folder able to import/export its content as CSV 
     """
     implements(Icsvreplicata)
 
