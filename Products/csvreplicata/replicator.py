@@ -62,11 +62,9 @@ class Replicator(object):
 
         return (count_created, count_modified, export_date, errors)
 
-    def _csvimport(self, csvfile, encoding=None, delimiter=None,
-                  stringdelimiter=None, datetimeformat=None,
-                  conflict_winner="SERVER", wf_transition=None, zip=None,
-                  vocabularyvalue="No", count_created=0, count_modified=0,
-                  errors=[]):
+    def _csvimport(self, csvfile, encoding, delimiter, stringdelimiter,
+                   datetimeformat, conflict_winner, wf_transition, zip,
+                   vocabularyvalue, count_created, count_modified, errors):
         
             csvfile.seek(0)
         
@@ -128,9 +126,9 @@ class Replicator(object):
                                                               wf_transition,
                                                               zip)
                             if is_new:
-                                count_created = count_created+1
+                                count_created = count_created + 1
                             elif is_modified:
-                                count_modified = count_modified+1
+                                count_modified = count_modified + 1
     
                         except csvreplicataConflictException, e:
                             #errors.append("Conflict on line " + \
@@ -154,8 +152,8 @@ class Replicator(object):
                 else:
                     label_line = False
                     
-            
             self.flag = needs_another_loop
+            
             return (count_created, count_modified, export_date, errors)
         
 
