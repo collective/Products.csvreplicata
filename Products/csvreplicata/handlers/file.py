@@ -37,7 +37,7 @@ class CSVFile(CSVdefault):
             if zip is not None:
                 #logger.error(obj.Schema().getField(field).getType())
                 while hasattr(f, 'data'):
-                    f = f.data
+                    f = str(f.data)
                 zip.writestr(filename, f)
             return filename
     
