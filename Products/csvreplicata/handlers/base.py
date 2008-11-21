@@ -62,8 +62,10 @@ class CSVString(CSVdefault):
         
         vocab = obj.Schema().getField(field).vocabulary
         if context.vocabularyvalue == "Yes" and len(vocab)>0 :
-            v = vocab.getValue(v)
-            
+            if hasattr(vocab, 'getValue'):
+                v = vocab.getValue(v)
+            elif hasattr(obj, vocab):
+                v = getattr(obj, vocab)().getValue(v)
         if v is None:
             v = ''
         
