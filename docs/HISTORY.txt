@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Trunk
+-----
+
+Fix export when data value is not ascii [yboussard]
+
 1.0 - Unreleased
 ----------------
 

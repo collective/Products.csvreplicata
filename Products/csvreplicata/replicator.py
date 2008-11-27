@@ -11,6 +11,9 @@ __docformat__ = 'plaintext'
 
 from zope.interface import implements
 from zope import event
+from zope.component import getUtility
+
+
 
 import csv, cStringIO
 
@@ -28,8 +31,13 @@ from interfaces import Icsvreplicata
 from exceptions import *
 from Products.csvreplicata import getPortalTypes
 
+from Products.CMFCore.interfaces import ISiteRoot
+from Products.CMFPlone.utils import getSiteEncoding
+
 import logging
 logger = logging.getLogger('CSV REPLICATOR')
+
+    
 
 class Replicator(object):
     """ a folder able to import/export its content as CSV 
@@ -40,6 +48,7 @@ class Replicator(object):
         """Initialize adapter."""
         self.context = context
         self.flag = True
+        self.site_encoding = getSiteEncoding(context)
 
     def csvimport(self, csvfile, encoding=None, delimiter=None,
                   stringdelimiter=None, datetimeformat=None,
@@ -299,19 +308,25 @@ class Replicator(object):
         currenttype = None
         currentfields = []
         for obj in exportable_objects:
-            type = str(obj.getTypeInfo().id)
-            if not(type == currenttype):
-                currenttype = type
+            type_info = str(obj.getTypeInfo().id)
+            if not(type_info == currenttype):
+                currenttype = type_info
                 # get type fields
-                currentfields = self.getTypeFields(type)
+                currentfields = self.getTypeFields(type_info)
                 # write ids
                 writer.writerow([s[0].encode(encoding) for s in currentfields])
                 # writes labels
                 writer.writerow([s[1].encode(encoding) for s in currentfields])
                 # store type specific fields list
                 current_specific_fields = [f[0] for f in currentfields[3:]]
-            
+                
             values = self.getObjectValues(obj, current_specific_fields, zip)
+            i = 0
+            for value in values:
+                if type(value) is not type(u''):
+                    values[i] = value.decode(self.site_encoding)
+                i += 1
+            
             # write values
             writer.writerow([s.encode(encoding) for s in values])
         
