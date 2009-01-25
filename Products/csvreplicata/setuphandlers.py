@@ -51,6 +51,7 @@ def setupHideToolsFromNavigation(context):
 
 def fixTools(context):
     """do post-processing on auto-installed tool instances"""
+    if isNotcsvreplicataProfile(context): return 
     site = context.getSite()
 
     tool_ids=['portal_csvreplicatatool']
