@@ -133,7 +133,7 @@ class Replicator(object):
                                                               conflict_winner,
                                                               export_date,
                                                               wf_transition,
-                                                              zip)
+                                                              zip, encoding=encoding)
                             if is_new:
                                 count_created = count_created + 1
                             elif is_modified:
@@ -155,8 +155,9 @@ class Replicator(object):
                             pass
     
                         except Exception, e:
-                            errors.append("Error in line "+str(line) + \
-                                          ": %s" % (e))
+#                            errors.append("Error in line "+str(line) + \
+#                                          ": %s" % (e))
+                            raise Exception, "Error in csv file line "+str(line) + ": %s" % (e)
                             
                 else:
                     label_line = False
@@ -168,7 +169,7 @@ class Replicator(object):
 
 
     def importObject(self, row, specific_fields, type, conflict_winner,
-                     export_date, wf_transition, zip):
+                     export_date, wf_transition, zip, encoding='utf-8'):
         """
         """
         modified = False
@@ -214,9 +215,10 @@ class Replicator(object):
             if f is not None and f != "":
                 type = obj.Schema().getField(f).getType()
                 h = handlers.get(type, handlers['default_handler'])
+                v = row[i].decode(encoding)
                 handler = h['handler_class']
                 old_value = handler.get(obj, f, context=self)
-                if old_value != row[i]:
+                if old_value != v:
                     if protected:
                         raise csvreplicataConflictException, \
                         "Overlapping content modified on" \
@@ -224,9 +226,9 @@ class Replicator(object):
                     else:
                         modified = True
                         if h['file']:
-                            handler.set(obj, f, row[i], context=self, zip=zip)
+                            handler.set(obj, f, v, context=self, zip=zip)
                         else:
-                            handler.set(obj, f, row[i], context=self)
+                            handler.set(obj, f, v, context=self)
             i = i+1
         
         # call events
