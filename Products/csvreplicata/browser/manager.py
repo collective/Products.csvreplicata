@@ -13,6 +13,7 @@ from Products.Five import BrowserView
 from Products.CMFCore.utils import getToolByName
 from zipfile import ZipFile
 from cStringIO import StringIO
+import os
 
 from Products.csvreplicata.interfaces import Icsvreplicata
 
@@ -32,6 +33,14 @@ class ReplicationManager(BrowserView):
     def doImport(self):
         """
         """
+        fileorigin = self.request.get("fileorigin")
+        if fileorigin=="SERVER":
+            csvtool = getToolByName(self.context, "portal_csvreplicatatool")
+            import_dir_path = csvtool.getServerfilepath()
+            file = open(os.path.join(import_dir_path, self.request.get("serverfile")))
+        else:
+            file = self.request.get("csvfile")
+            
         replicator = Icsvreplicata(self.context)
         datetimeformat = self.request.get("datetimeformat")
         vocabularyvalue = self.request.get("vocabularyvalue")
@@ -44,13 +53,13 @@ class ReplicationManager(BrowserView):
             wf_transition = None
         importfiles = self.request.get("importfiles")
         if importfiles=="Yes":
-            zip = ZipFile(self.request.get("csvfile"))
+            zip = ZipFile(file)
             csvfile=StringIO()
             csvfile.write(zip.read("export.csv"))
             csvfile.seek(0)
         else:
             zip = None
-            csvfile = self.request.get("csvfile") 
+            csvfile = file
         
         (count_created, count_modified, export_date, errors)=replicator.csvimport(csvfile, encoding=encoding, delimiter=delimiter, stringdelimiter=stringdelimiter, datetimeformat=datetimeformat, conflict_winner=conflict_winner, wf_transition=wf_transition, zip=zip, vocabularyvalue=vocabularyvalue)
         if len(errors)==0:
@@ -149,3 +158,12 @@ class ReplicationManager(BrowserView):
                 if not(t.id in transitions):
                     transitions.append(t.id)
         return transitions
+    
+    def getServerImportableFiles(self):
+        """
+        """
+        csvtool = getToolByName(self.context, "portal_csvreplicatatool")
+        import_dir_path = csvtool.getServerfilepath()
+        if import_dir_path is not None and import_dir_path!='':
+            return os.listdir(import_dir_path)
+        return []

@@ -65,6 +65,15 @@ schema = Schema((
             i18n_domain='csvreplicata',
         ),
     ),
+    StringField(
+        name='serverfilepath',
+        default="",
+        widget=StringField._properties['widget'](
+            label='Server import folder',
+            label_msgid='csvreplicata_label_serverfilepath',
+            i18n_domain='csvreplicata',
+        ),
+    ),
     LinesField(
         name='excludedfields',
         default=['id', 'locallyAllowedTypes', 'constrainTypesMode',
@@ -144,7 +153,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         """
         self.setEncoding(REQUEST.get('encoding'));
         self.setDelimiter(REQUEST.get('delimiter'));
-        self.setStringdelimiter(REQUEST.get('stringdelimiter'));
+        self.setServerfilepath(REQUEST.get('serverfilepath'));
 
         # Redirection of the page now that the treatment is done
         REQUEST.RESPONSE.redirect(self.absolute_url()+'/csv_settings')

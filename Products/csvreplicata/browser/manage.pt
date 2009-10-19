@@ -26,13 +26,22 @@
 					<div class="field">
 						<div class="widget">
 							<label for="formElements">CSV File</label>
-							<div class="formHelp">Pick the CSV File to be imported</div>
-							<input type="file" name="csvfile"/>
 							<span class="fieldRequired"
-				                title="Required"
-				                i18n:translate="label_required"
-				                i18n:attributes="title title_required;">
-				            </span>
+                                title="Required"
+                                i18n:translate="label_required"
+                                i18n:attributes="title title_required;">
+                            </span>
+							<div class="formHelp">Pick the CSV File to be imported</div>
+							<input type="radio" name="fileorigin" value="LOCAL" checked />From local machine
+							<input type="file" name="csvfile"/><br/>
+							<input type="radio" name="fileorigin" value="SERVER" />From server
+                            <select name="serverfile">
+                                    <option value="None" selected>None</option>
+                                    <tal:loop tal:repeat="f view/getServerImportableFiles">
+                                        <option tal:content="f" tal:attributes="value f">filename</option>
+                                    </tal:loop>
+                            </select>
+
 				        </div>
 					</div>
 					<div class="field">
