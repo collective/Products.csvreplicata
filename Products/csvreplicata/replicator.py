@@ -216,7 +216,6 @@ class Replicator(object):
         handlers = csvtool.getHandlers()
         i = 3
         for f in specific_fields:
-            logger.error(f)
             if f is not None and f != "":
                 type = obj.Schema().getField(f).getType()
                 h = handlers.get(type, handlers['default_handler'])
