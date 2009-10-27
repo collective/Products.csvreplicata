@@ -52,7 +52,11 @@ class CSVFile(CSVdefault):
             raise csvreplicataException, "No zip file provided"
         else:
             if obj.Schema().getField(field).writeable(obj):
-                obj.Schema().getField(field).set(obj, zip.read(value))
+                try:
+                    file = zip.read(value)
+                except KeyError, e:
+                    raise csvreplicataMissingFileInArchive, "%s not found in zip file" % (value) 
+                obj.Schema().getField(field).set(obj, file)
                 obj.Schema().getField(field).get(obj).setFilename(value)
             else:
                 raise csvreplicataPermissionException, \

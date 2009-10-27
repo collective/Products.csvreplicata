@@ -153,7 +153,11 @@ class Replicator(object):
                         except csvreplicataNonExistentContainer, e:
                             needs_another_loop = True
                             pass
-    
+                        
+                        except csvreplicataMissingFileInArchive, e:
+                            errors.append("Error in line "+str(line) + ": %s" % (e))
+                            pass
+                        
                         except Exception, e:
 #                            errors.append("Error in line "+str(line) + \
 #                                          ": %s" % (e))
@@ -212,6 +216,7 @@ class Replicator(object):
         handlers = csvtool.getHandlers()
         i = 3
         for f in specific_fields:
+            logger.error(f)
             if f is not None and f != "":
                 type = obj.Schema().getField(f).getType()
                 h = handlers.get(type, handlers['default_handler'])

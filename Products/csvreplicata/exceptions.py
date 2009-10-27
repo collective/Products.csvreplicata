@@ -12,3 +12,6 @@ class csvreplicataPermissionException(Exception):
 
 class csvreplicataNonExistentContainer(Exception):
     pass
+
+class csvreplicataMissingFileInArchive(Exception):
+    pass
