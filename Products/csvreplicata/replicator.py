@@ -358,8 +358,8 @@ class Replicator(object):
             exportable_objects = []
 
         # search plugins for objects to add to the export list
-        objects_searchers = getAdapters([self, self.context], 
-                              ICSVReplicataObjectsSearcher) 
+        objects_searchers = getAdapters([self, self.context],
+                              ICSVReplicataObjectsSearcher)
         # be sure not to export twice the same content.
         objects = []
         for oid, o_s in objects_searchers:
@@ -371,7 +371,7 @@ class Replicator(object):
                           and (o.meta_type in exportable_content_types)
                       )]
         exportable_objects.extend(objects)
-        
+
         # export content
         currentrows = []
         currenttype = None
@@ -400,7 +400,7 @@ class Replicator(object):
                 # get type fields
                 currentFieldsAndLabels = self.getTypeFields(type_info)
                 # reset fields row
-                currentfields = [s[0].encode(encoding) 
+                currentfields = [s[0].encode(encoding)
                                  for s in currentFieldsAndLabels]
                 # reset labels row
                 for s in currentFieldsAndLabels:
@@ -446,9 +446,9 @@ class Replicator(object):
     def getTypeFields(self, type):
         """
         """
-        fields_and_labels = [('parent', 'Parent folder'), 
+        fields_and_labels = [('parent', 'Parent folder'),
                              ('id'    , 'Identifier'),
-                             ('type'  , 'Content type')]  
+                             ('type'  , 'Content type')]
         types = {}
         try:
             attool = getToolByName(self.context, 'archetype_tool')
@@ -457,7 +457,7 @@ class Replicator(object):
             pass
         at = None
         # if its not an archetypes based object
-        # we will rely on present plugins to export its specific fields   
+        # we will rely on present plugins to export its specific fields
         try:
             at = attool.lookupType(types[type][0], types[type][1])
         except KeyError, e:
@@ -468,7 +468,7 @@ class Replicator(object):
             schematas = csvtool.replicabletypes[type]
         else:
             schematas = []
-        notExportableFieldClasses = csvtool.getExcludedfieldsclasses() 
+        notExportableFieldClasses = csvtool.getExcludedfieldsclasses()
         notExportableFields = csvtool.getExcludedfields()
         at_class = at['klass']
         for schemata in schematas:
@@ -500,7 +500,7 @@ class Replicator(object):
         except:
             pass
         try:
-            obj_id = obj.id 
+            obj_id = obj.id
         except:
             pass
         values = [parent_path, obj_id, type_info]
