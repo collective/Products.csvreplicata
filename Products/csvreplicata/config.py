@@ -52,3 +52,13 @@ try:
     from Products.csvreplicata.AppConfig import *
 except ImportError:
     pass
+
+# A flag to support Plone 2.5.x
+from Products.CMFPlone.utils import getFSVersionTuple
+_ploneVersion = getFSVersionTuple()
+_major = _ploneVersion[0]
+_minor = _ploneVersion[1]
+if (_major == 2) and (_minor <= 5):
+    PLONE25 = True
+else:
+    PLONE25 = False

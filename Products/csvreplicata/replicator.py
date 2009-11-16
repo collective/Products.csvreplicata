@@ -9,38 +9,65 @@
 __author__ = """Eric BREHAULT <eric.brehault@makina-corpus.org>"""
 __docformat__ = 'plaintext'
 
-from zope.interface import implements
-from zope import event
-from zope.component import getUtility
-
-
-
-import csv, cStringIO
-
+import logging
 from DateTime import DateTime
 from time import strptime
+import csv
+import cStringIO
+import re
+from exceptions import *
+
+from zope.interface import implements
+from zope import event
+from zope.component import getUtility, getAdapters
 
 from Products.CMFCore.utils import getToolByName
+from Products.csvreplicata import config
 
-from Products.Archetypes.event import ObjectInitializedEvent
-from Products.Archetypes.event import ObjectEditedEvent
+if config.PLONE25:
+    from zope.app.event.objectevent import ObjectCreatedEvent  as ObjectInitializedEvent
+    from zope.app.event.objectevent import ObjectModifiedEvent as ObjectEditedEvent
+else:
+    # plone > 2.5
+    from Products.Archetypes.event import ObjectInitializedEvent
+    from Products.Archetypes.event import ObjectEditedEvent
 
 from interfaces import Icsvreplicata
+from interfaces import ICSVReplicataObjectsSearcher
+from interfaces import ICSVReplicataExportPlugin
 #from config import getHandlers, default_handler
 
-from exceptions import *
 from Products.csvreplicata import getPortalTypes
 
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFPlone.utils import getSiteEncoding
 
-import logging
+
+re_flags = re.M|re.S|re.U
 logger = logging.getLogger('CSV REPLICATOR')
 
-    
+REMOVE_SPECIALCHARS = re.compile(u"((\x0d\x0a)|(\r\n))", re_flags)
+DOUBLELINER = re.compile(u"\n\s*(\n\s*)+", re_flags)
+EMPTYLINE  = re.compile(u"^()$", re_flags)
+
+
+def fill_empty_fields_and_write_rows(writer, ids, labels=None, rows=None):
+    if ids:
+        writer.writerow(ids)
+    if labels:
+        writer.writerow(labels)
+    if rows:
+        # fill empty field left by non value
+        # eg plugin that does not match for a particular object
+        for index, row in enumerate(rows[:]):
+            if ids:
+                if len(row) < len(ids):
+                    for i in range(len(ids) - len(row)):
+                        rows[index].append(None)
+            writer.writerow(rows[index])
 
 class Replicator(object):
-    """ a folder able to import/export its content as CSV 
+    """ a folder able to import/export its content as CSV
     """
     implements(Icsvreplicata)
 
@@ -57,11 +84,11 @@ class Replicator(object):
                   errors=[]):
         """
         CSV import.
-        
+
         Calls recursively self._csvimport while self.flag
         """
         while self.flag :
-            
+
             count_created, count_modified, export_date, errors = \
                     self._csvimport(csvfile, encoding, delimiter,
                                     stringdelimiter, datetimeformat,
@@ -74,12 +101,12 @@ class Replicator(object):
     def _csvimport(self, csvfile, encoding, delimiter, stringdelimiter,
                    datetimeformat, conflict_winner, wf_transition, zip,
                    vocabularyvalue, count_created, count_modified, errors):
-        
+
             csvfile.seek(0)
-        
+
             # get portal types
             types = getPortalTypes(self.context)
-            
+
             # read parameters
             csvtool = getToolByName(self.context, "portal_csvreplicatatool")
             if encoding is None:
@@ -93,8 +120,8 @@ class Replicator(object):
                 datetimeformat = "%Y-%m-%d"
             self.datetimeformat = datetimeformat
             self.vocabularyvalue = vocabularyvalue
-                
-                
+
+
             # read csv
             reader = csv.reader(csvfile, delimiter=delimiter,
                                 quotechar=stringdelimiter,
@@ -110,7 +137,7 @@ class Replicator(object):
                                    int(export_date_str[8:10]),
                                    int(export_date_str[10:12]),
                                    int(export_date_str[12:14]))
-            
+
             # parse content
             specific_fields = None
             label_line = False
@@ -133,43 +160,45 @@ class Replicator(object):
                                                               conflict_winner,
                                                               export_date,
                                                               wf_transition,
-                                                              zip, encoding=encoding)
+                                                              zip,
+                                                              encoding=encoding,
+                                                             )
                             if is_new:
                                 count_created = count_created + 1
                             elif is_modified:
                                 count_modified = count_modified + 1
-    
+
                         except csvreplicataConflictException, e:
                             #errors.append("Conflict on line " + \
                                           #str(line)+": %s" % (e))
-                            
+
                             # here content is modified during a second
                             # (or more) parsing "
                             pass
-                            
+
                         except csvreplicataBrokenReferenceException, e:
                             needs_another_loop = True
 
                         except csvreplicataNonExistentContainer, e:
                             needs_another_loop = True
                             pass
-                        
+
                         except csvreplicataMissingFileInArchive, e:
                             errors.append("Error in line "+str(line) + ": %s" % (e))
                             pass
-                        
+
                         except Exception, e:
 #                            errors.append("Error in line "+str(line) + \
 #                                          ": %s" % (e))
                             raise Exception, "Error in csv file line "+str(line) + ": %s" % (e)
-                            
+
                 else:
                     label_line = False
-                    
+
             self.flag = needs_another_loop
-            
+
             return (count_created, count_modified, export_date, errors)
-        
+
 
 
     def importObject(self, row, specific_fields, type, conflict_winner,
@@ -190,8 +219,8 @@ class Replicator(object):
             except:
                 raise csvreplicataNonExistentContainer, \
                 "Non existent container %s " % parent_path
-            
-            
+
+
         obj = getattr(container, id, None)
         if obj is None:
             # object does not exist, let's create it
@@ -210,7 +239,7 @@ class Replicator(object):
                     protected = False
             else:
                 protected = False
-                
+
         # update object
         csvtool = getToolByName(self.context, "portal_csvreplicatatool")
         handlers = csvtool.getHandlers()
@@ -219,9 +248,23 @@ class Replicator(object):
             if f is not None and f != "":
                 type = obj.Schema().getField(f).getType()
                 h = handlers.get(type, handlers['default_handler'])
-                v = row[i].decode(encoding)
+                v = None
+                try:
+                    v = row[i].decode(encoding)
+                except:
+                    v = row[i].encode('utf-8').decode(encoding)
+                handler = h['handler_class']
+                # XXX:on plone25, 'allowDiscussion' is stored in a stringfield, force to be bool.
+                if f == 'allowDiscussion':
+                    h = handlers.get('Products.Archetypes.Field.BooleanField')
                 handler = h['handler_class']
                 old_value = handler.get(obj, f, context=self)
+                if isinstance(old_value, basestring):
+                    if not isinstance(old_value, unicode) and isinstance(v, unicode):
+                        try:
+                            old_value = old_value.decode('utf-8')
+                        except:
+                            pass
                 if old_value != v:
                     if protected:
                         raise csvreplicataConflictException, \
@@ -230,11 +273,12 @@ class Replicator(object):
                     else:
                         modified = True
                         if h['file']:
-                            handler.set(obj, f, v, context=self, zip=zip)
+                            handler.set(obj, f, v, context=self, zip=zip, parent_path=parent_path)
                         else:
                             handler.set(obj, f, v, context=self)
+
             i = i+1
-        
+
         # call events
         if is_new_object:
             event.notify(ObjectInitializedEvent(obj))
@@ -244,17 +288,21 @@ class Replicator(object):
                 wftool = getToolByName(self.context, 'portal_workflow')
                 wftool.doActionFor( obj, wf_transition)
             except Exception:
-               pass     
+               pass
         elif modified:
             event.notify(ObjectEditedEvent(obj))
             obj.at_post_edit_script()
             obj.reindexObject()
-    
+
         return (is_new_object, modified)
-    
-    def csvexport(self, encoding=None, delimiter=None, stringdelimiter=None,
-                  datetimeformat=None, depth=1, wf_states=None, zip=None,
-                  vocabularyvalue="No", exportable_content_types=None):
+
+    def csvexport(self,
+                  encoding = None, delimiter = None, stringdelimiter = None,
+                  datetimeformat = None,
+                  depth = 1, wf_states = None,
+                  zip = None,
+                  vocabularyvalue = "No",
+                  exportable_content_types = None):
         """
         """
         # read parameters
@@ -266,23 +314,22 @@ class Replicator(object):
         if stringdelimiter is None:
             stringdelimiter = csvtool.getStringdelimiter()
         if datetimeformat is None:
-            #datetimeformat = csvtool.getDateTimeFormat()
-            datetimeformat = "%Y-%m-%d"
+            datetimeformat = csvtool.getDateTimeFormat()
+            #datetimeformat = "%Y-%m-%d"
         self.datetimeformat = datetimeformat
         self.vocabularyvalue = vocabularyvalue
 
-        
         # initialize csv
         stream = cStringIO.StringIO()
         writer = csv.writer(stream, delimiter=delimiter,
                             quotechar=stringdelimiter,
                             quoting=csv.QUOTE_NONNUMERIC)
-        
+
         writer.writerow(["/".join\
                          (self.context.getPhysicalPath()).encode(encoding),
                          DateTime().strftime(format='%Y%m%d%H%M%S').\
                          encode(encoding)])
-        
+
         # search objects
         #exportable_content_types = csvtool.getReplicableTypesSorted()
         if exportable_content_types is not None:
@@ -300,70 +347,141 @@ class Replicator(object):
                     path = {'query':"/".join(self.context.getPhysicalPath()),
                             'depth':depth}
                 query['path'] = path
-                
+
                 if wf_states is not None:
                     query['review_state'] = wf_states
-                    
+
                 search_exportable = self.context.portal_catalog.searchResults(
                     query)
                 exportable_objects = [o.getObject() for o in search_exportable]
         else:
             exportable_objects = []
+
+        # search plugins for objects to add to the export list
+        objects_searchers = getAdapters([self, self.context], 
+                              ICSVReplicataObjectsSearcher) 
+        # be sure not to export twice the same content.
+        objects = []
+        for oid, o_s in objects_searchers:
+            noecho = [objects.append(o)
+                      for o in o_s.getObjects()
+                      if (
+                          (not (o in exportable_objects))
+                          and (not (o in objects))
+                          and (o.meta_type in exportable_content_types)
+                      )]
+        exportable_objects.extend(objects)
         
         # export content
+        currentrows = []
         currenttype = None
         currentfields = []
-        for obj in exportable_objects:
+        currentpluginfields = []
+        currentlabels = []
+        currentfieldsIndex = 0
+        for index, obj in enumerate(exportable_objects):
+            # search plugins that can add cells to our objects
+            plugins = getAdapters([self, obj], ICSVReplicataExportPlugin)
             type_info = str(obj.getTypeInfo().id)
             if not(type_info == currenttype):
                 currenttype = type_info
+                # do no write to file the fist iteration step
+                # goal is to flush to file per object type to minimize
+                # RAM memory usage
+                if index > 0:
+                    fill_empty_fields_and_write_rows(
+                        writer,
+                        currentfields + currentpluginfields,
+                        currentlabels + currentpluginfields,
+                        currentrows
+                    )
+                    # be sure, reset!
+                    currentfields, currentlabels, currentrows = [], [], []
                 # get type fields
-                currentfields = self.getTypeFields(type_info)
-                # write ids
-                writer.writerow([s[0].encode(encoding) for s in currentfields])
-                # writes labels
-                writer.writerow([s[1].encode(encoding) for s in currentfields])
-                # store type specific fields list
-                current_specific_fields = [f[0] for f in currentfields[3:]]
-                
-            values = self.getObjectValues(obj, current_specific_fields, zip)
-            i = 0
-            for value in values:
-                if type(value) is not type(u''):
-                    values[i] = value.decode(self.site_encoding)
-                i += 1
-            
-            # write values
-            writer.writerow([s.encode(encoding) for s in values])
-        
+                currentFieldsAndLabels = self.getTypeFields(type_info)
+                # reset fields row
+                currentfields = [s[0].encode(encoding) 
+                                 for s in currentFieldsAndLabels]
+                # reset labels row
+                for s in currentFieldsAndLabels:
+                    # handle utf-8 false-ascii encoded string
+                    try:
+                        currentlabels.append(s[1].encode(encoding))
+                    except UnicodeDecodeError:
+                        currentlabels.append(s[1].decode(encoding).encode(encoding))
+                # per object specific fields list
+                current_specific_fields = currentfields[3:]
+                # reset current plugin handled fields
+                currentpluginfields = []
+            # add cells given by plugins, must run once per object as each object
+            # even on the same type can have fields like for annotations
+            for pluginid, plugin in plugins:
+                plugin.append_ids(currentpluginfields)
+            # initiate to blank all valuees currently given by plugins
+            plugins_values = [None for i in range(len(currentpluginfields))]
+            # fetch the possible objecvalues handled by plugins
+            for pluginid, plugin in plugins:
+                plugin.fill_values(plugins_values, currentpluginfields)
+            values_row = self.getObjectValues(obj,
+                                              current_specific_fields,
+                                              zip) + plugins_values
+            for i, value in enumerate(values_row[:]):
+                if isinstance(value, basestring):
+                    # byte but not utf-9 yet
+                    if not isinstance(value, unicode):
+                        values_row[i] = value.decode('utf-8')
+                    # any way in anycase, back to ASCII encoded
+                    values_row[i] = values_row[i].encode(encoding)
+            currentrows.append(values_row)
+        # last loop turn fields
+        if len(currentrows):
+            fill_empty_fields_and_write_rows(
+                writer,
+                currentfields + currentpluginfields,
+                currentlabels + currentpluginfields,
+                currentrows
+            )
         return stream.getvalue()
 
     def getTypeFields(self, type):
         """
         """
-        types = getPortalTypes(self.context)
-        attool = getToolByName(self.context, 'archetype_tool')
+        fields_and_labels = [('parent', 'Parent folder'), 
+                             ('id'    , 'Identifier'),
+                             ('type'  , 'Content type')]  
+        types = {}
+        try:
+            attool = getToolByName(self.context, 'archetype_tool')
+            types = getPortalTypes(self.context)
+        except:
+            pass
+        at = None
+        # if its not an archetypes based object
+        # we will rely on present plugins to export its specific fields   
+        try:
+            at = attool.lookupType(types[type][0], types[type][1])
+        except KeyError, e:
+            return fields_and_labels
+        # All right, archetypes, keep on workin'
         csvtool = getToolByName(self.context, "portal_csvreplicatatool")
         if csvtool.replicabletypes.has_key(type):
             schematas = csvtool.replicabletypes[type]
         else:
             schematas = []
-        notExportableFieldClasses = csvtool.getExcludedfieldsclasses()
+        notExportableFieldClasses = csvtool.getExcludedfieldsclasses() 
         notExportableFields = csvtool.getExcludedfields()
-        at = attool.lookupType(types[type][0], types[type][1])
         at_class = at['klass']
-        types = [('parent', 'Parent folder'), ('id', 'Identifier'),
-                ('type','Content type')] 
         for schemata in schematas:
             fields = at_class.schema.getSchemataFields(schemata)
             #TODO: use getTranslationService to get the i18n translation
-            types.extend([(f.getName(), f.widget.label) 
-                          for f in fields 
-                          if f.__class__.__name__ not in \
-                          notExportableFieldClasses 
-                          and f.getName() not in notExportableFields])
-        return types
-    
+            fields_and_labels.extend(
+                [(f.getName(), f.widget.label)
+                 for f in fields
+                 if f.__class__.__name__ not in notExportableFieldClasses
+                 and f.getName() not in notExportableFields]
+            )
+        return fields_and_labels
+
     def getObjectValues(self, obj, specific_fields, zip):
         """
         """
@@ -374,24 +492,34 @@ class Replicator(object):
             parent_path = ""
         elif parent_path.startswith(current+"/"):
             parent_path = parent_path[len(current)+1:]
-            
         # add the 3 standard first columns
-        values = [parent_path, obj.id, obj.getTypeInfo().id]
-        
+        obj_id, type_info = None, None
+        # deal with  specific none zope object
+        try:
+            type_info = obj.getTypeInfo().id
+        except:
+            pass
+        try:
+            obj_id = obj.id 
+        except:
+            pass
+        values = [parent_path, obj_id, type_info]
         csvtool = getToolByName(self.context, "portal_csvreplicatatool")
         handlers = csvtool.getHandlers()
         # add specific columns
         for f in specific_fields:
             type = obj.Schema().getField(f).getType()
+
             h = handlers.get(type, handlers['default_handler'])
+            # XXX:on plone25, 'allowDiscussion' is stored in a stringfield, force to be bool.
+            if f == 'allowDiscussion':
+                h = handlers.get('Products.Archetypes.Field.BooleanField')
             handler = h['handler_class']
             if h['file']:
-                v = handler.get(obj, f, context=self, zip=zip)
+                v = handler.get(obj, f, context=self, zip=zip, parent_path=parent_path)
             else:
                 v = handler.get(obj, f, context=self)
             values.append(v)
         return values
 
 
-
-    

@@ -18,13 +18,24 @@
   <five:traversable class=".interfaces.ICSVReplicable"/>
   
   <five:implements
-            class="Products.ATContentTypes.content.folder.ATFolder"
-            interface=".interfaces.ICSVReplicable"
-        />
+      class="Products.ATContentTypes.content.folder.ATFolder"
+      interface=".interfaces.ICSVReplicable"
+    />
   <five:implements
-            class="Products.ATContentTypes.content.topic.ATTopic"
-            interface=".interfaces.ICSVReplicable"
-        />
+      class="Products.ATContentTypes.content.topic.ATTopic"
+      interface=".interfaces.ICSVReplicable"
+    />
+  
+
+  <!-- Export / Import plugins base classes -->
+  <five:implements
+      class="Products.csvreplicata.adapters.CSVReplicataObjectSearcherAbstract"
+      interface=".interfaces.ICSVReplicataObjectsSearcher"
+    />                                                
+  <five:implements
+      class="Products.csvreplicata.adapters.CSVReplicataExportPluginAbstract"
+      interface=".interfaces.ICSVReplicataExportPlugin"
+    /> 
   <!-- ##/code-section configure.zcml -->
 
 </configure>

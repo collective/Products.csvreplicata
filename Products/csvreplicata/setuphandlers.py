@@ -40,7 +40,7 @@ def setupHideToolsFromNavigation(context):
     if navtreeProperties.hasProperty('idsNotToList'):
         for toolname in toolnames:
             try:
-                portal[toolname].unindexObject()
+                site[toolname].unindexObject()
             except:
                 pass
             current = list(navtreeProperties.getProperty('idsNotToList') or [])

@@ -8,17 +8,22 @@
 <body>
 
 <metal:main fill-slot="main">
-    <tal:main-macro metal:define-macro="main"
-           tal:define="kssClassesView context/@@kss_field_decorator_view;
-                       getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;
-                       templateId template/getId;
-                       ">
+  <tal:main-macro metal:define-macro="main"
+    tal:define="templateId template/getId;
+                kssClassesView nocall:view/kssClassesView;
+                getKssClasses view/getKssClasses;">
 
-        <div tal:replace="structure provider:plone.abovecontenttitle" />
+         <div
+           tal:condition="not: context/isCSVRPlone25"
+           tal:replace="structure provider:plone.abovecontenttitle" />
+ 
 
-        <h1 metal:use-macro="here/kss_generic_macros/macros/generic_title_view">
-          Title or id
-        </h1>
+         <tal tal:condition="not: context/isCSVRPlone25">
+           <h1
+             metal:use-macro="here/kss_generic_macros/macros/generic_title_view">
+             Title or id
+           </h1>
+         </tal>
 
 		<form tal:condition="python:not(here.Type()=='Smart Folder')" action="@@csvimport" method="POST" enctype="multipart/form-data">
 			<fieldset style="float: left; margin-right: 1em;">
@@ -75,13 +80,13 @@
 						<div class="widget">
 							<label for="formElements">Date/time format</label>
 							<div class="formHelp">Indicate the date / time format of your file</div>
-							<input 	type="text" 
-									name="datetimeformat" 
-									value="%d/%m/%Y"/>
+							<input 	type="text"
+									name="datetimeformat"
+									tal:attributes="value here/portal_csvreplicatatool/getDateTimeFormat"/>
 				        </div>
 					</div>
 					<div class="field">
-						<div class="widget">	
+						<div class="widget">
 							<label for="formElements">Conflicts management</label>
 							<div class="formHelp">Choose the rule to apply if some conflicts are encountered</div>
 							<input type="radio" name="conflictrule" value="SERVER" checked />Server wins OR <input type="radio" name="conflictrule" value="LOCAL" />File wins (WARNING: it might produce unwanted data overwritting)
@@ -96,7 +101,7 @@
 						    		<tal:loop tal:repeat="t view/getAllWorkflowTransitions">
 						    			<option tal:content="t" tal:attributes="value t">transition</option>
 						    		</tal:loop>
-						    </select>				       
+						    </select>
 						</div>
 					</div>
 					<div class="field">
@@ -147,7 +152,7 @@
 								<input type="text" name="depth" value="0"/>
 							</div>
 						</div>
-					</tal:folderonly>    
+					</tal:folderonly>
 					<div class="field">
 						<div class="widget">
 							<label for="formElements">Encoding</label>
@@ -179,9 +184,9 @@
 						<div class="widget">
 							<label for="formElements">Date/time format</label>
 							<div class="formHelp">Indicate the date / time format of your file</div>
-							<input 	type="text" 
-									name="datetimeformat" 
-									value="%d/%m/%Y"/>
+							<input 	type="text"
+									name="datetimeformat"
+									tal:attributes="value here/portal_csvreplicatatool/getDateTimeFormat"/>
 				        </div>
 					</div>
 					<div class="field">
@@ -209,7 +214,7 @@
                 			</select>
 						</div>
 					</div>
-					
+
 				    <div class="field">
 						<div class="widget">
 						    <label for="formElements">Export vocabulary value</label>
@@ -225,7 +230,9 @@
 				</div>
 			</fieldset>
 		</form>
-        <div tal:replace="structure provider:plone.belowcontentbody" />
+    <div
+      tal:condition="not: context/isCSVRPlone25"
+      tal:replace="structure provider:plone.belowcontentbody" />
 
     </tal:main-macro>
 </metal:main>

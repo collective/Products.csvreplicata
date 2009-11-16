@@ -54,6 +54,21 @@ class CSVdefault(object):
 class CSVString(CSVdefault):
     """
     """
+    # special case for bizarious collage vocabs.
+    collage_vocab = 'Products.Collage.content._portlet.PortletVocabulary' 
+
+    def getLenVocab(self, vocab):
+        """
+        Some vocabularies like the old Products.Collage.content._portlet.PortletVocabulary
+        do not have __len__. So just bypass the check
+        """
+        lenvocab = 0
+        try:
+            lenvocab = len(vocab)
+        except AttributeError, e:
+            lenvocab = 1
+        return lenvocab
+
     
     def get(self, obj, field, context=None):
         """
@@ -61,14 +76,22 @@ class CSVString(CSVdefault):
         v = obj.Schema().getField(field).getRaw(obj)
         
         vocab = obj.Schema().getField(field).vocabulary
-        if context.vocabularyvalue == "Yes" and len(vocab)>0 :
+
+
+        if context.vocabularyvalue == "Yes" and self.getLenVocab(vocab):
             if hasattr(vocab, 'getValue'):
                 v = vocab.getValue(v)
+            # some thirdparty modules have list instead of nice vocabs.
+            elif isinstance(vocab, list):
+                if v in vocab:
+                    return v
+            elif '%s'%vocab.__class__ == self.collage_vocab:
+                if v in vocab.getDisplayList(obj):
+                    return vocab.getDisplayList(obj).getValue(v)
             elif hasattr(obj, vocab):
                 v = getattr(obj, vocab)().getValue(v)
         if v is None:
             v = ''
-        
         return v
     
     def set(self, obj, field, value, context=None):
@@ -76,8 +99,14 @@ class CSVString(CSVdefault):
         
         vocab = obj.Schema().getField(field).vocabulary
         
-        if context.vocabularyvalue == "Yes" and len(vocab)>0 :
-            if vocab.getKey(value) is not None:
+        lenvocab = 1
+        if context.vocabularyvalue == "Yes" and self.getLenVocab(vocab):
+            if isinstance(vocab, list):
+                if value in vocab:
+                    value = value
+                else:
+                    value = ''
+            elif vocab.getKey(value) is not None:
                 value = vocab.getKey(value)
             else:
                 value = ''
@@ -189,8 +218,8 @@ class CSVDateTime(CSVdefault):
         """
         if context is None:
             csvtool = getToolByName(obj, "portal_csvreplicatatool")
-            #format = csvtool.getDateTimeFormat()
-            format = '%d/%m/%Y'
+            format = csvtool.getDateTimeFormat()
+            #format = '%d/%m/%Y'
         else:
             format = context.datetimeformat
             
@@ -203,8 +232,8 @@ class CSVDateTime(CSVdefault):
     def set(self, obj, field, value, context=None):
         if context is None:
             csvtool = getToolByName(obj, "portal_csvreplicatatool")
-            #format = csvtool.getDateTimeFormat()
-            format = '%d/%m/%Y'
+            format = csvtool.getDateTimeFormat()
+            #format = '%d/%m/%Y'
         else:
             format = context.datetimeformat
             

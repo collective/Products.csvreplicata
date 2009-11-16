@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0.2'
+version = '1.0.8'
 
 setup(name='Products.csvreplicata',
       version=version,

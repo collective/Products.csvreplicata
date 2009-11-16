@@ -18,5 +18,6 @@ HANDLERS={'default_handler': {'handler_class' : base.CSVdefault(), 'file' : Fals
           'Products.Archetypes.Field.FileField': {'handler_class' : file.CSVFile(), 'file' : True},
           'Products.Archetypes.Field.ImageField': {'handler_class' : file.CSVFile(), 'file' : True},
           'plone.app.blob.subtypes.file.ExtensionBlobField': {'handler_class' : file.CSVFile(), 'file' : True},
+          'Products.AttachmentField.AttachmentField.AttachmentField': {'handler_class' : file.CSVFile(), 'file' : True},
           }
 

@@ -16,6 +16,7 @@ from cStringIO import StringIO
 import os
 
 from Products.csvreplicata.interfaces import Icsvreplicata
+from Products.csvreplicata import config
 
 import logging
 logger = logging.getLogger('CSV MANAGER')
@@ -23,13 +24,33 @@ logger = logging.getLogger('CSV MANAGER')
 class ReplicationManager(BrowserView):
     """ allow to manage CSV replication
     """
-    
-    
+
     def __init__(self, context, request):
         """Initialize browserview"""
         self.context = context
         self.request = request
-        
+
+ 
+    def kssClassesView(self):
+        """
+        Yet another plone25 wrapper.
+        """ 
+        if not config.PLONE25:
+            return self.context.restrictedTraverse(
+                '@@kss_field_decorator_view'
+            )
+
+    def getKssClasses(self):
+        """
+        Yet another plone25 wrapper.
+        """
+        try:
+            kssClassesView = self.context.restrictedTraverse('@@kss_field_decorator_view')
+            return kssClassesView.getKssClassesInlineEditable
+        except Exception, e:
+            if not config.PLONE25:
+                raise
+
     def doImport(self):
         """
         """
@@ -40,7 +61,7 @@ class ReplicationManager(BrowserView):
             file = open(os.path.join(import_dir_path, self.request.get("serverfile")))
         else:
             file = self.request.get("csvfile")
-            
+
         replicator = Icsvreplicata(self.context)
         datetimeformat = self.request.get("datetimeformat")
         vocabularyvalue = self.request.get("vocabularyvalue")
@@ -60,15 +81,27 @@ class ReplicationManager(BrowserView):
         else:
             zip = None
             csvfile = file
-        
-        (count_created, count_modified, export_date, errors)=replicator.csvimport(csvfile, encoding=encoding, delimiter=delimiter, stringdelimiter=stringdelimiter, datetimeformat=datetimeformat, conflict_winner=conflict_winner, wf_transition=wf_transition, zip=zip, vocabularyvalue=vocabularyvalue)
+
+        (count_created, 
+         count_modified, 
+         export_date, 
+         errors) = replicator.csvimport(
+             csvfile, 
+             encoding = encoding, 
+             delimiter = delimiter, 
+             stringdelimiter = stringdelimiter, 
+             datetimeformat = datetimeformat, 
+             conflict_winner = conflict_winner, 
+             wf_transition = wf_transition, 
+             zip = zip, 
+             vocabularyvalue = vocabularyvalue)
         if len(errors)==0:
             self.writeMessageOnPage(["All lines imported, %d object(s) created, %d object(s) modified." % (count_created, count_modified)])
             self.writeMessageOnPage(["This CSV file has been produced on "+str(export_date)+". To avoid inconsistencies, do not import this file anymore. It is preferable to export a new one."])
         else:
             self.writeMessageOnPage(["%d object(s) created, %d object(s) modified." % (count_created, count_modified)])
             self.writeMessageOnPage(errors, error = True)
-            
+
         self.request.RESPONSE.redirect(self.context.absolute_url()+'/@@csvreplicata')
 
     def doExport(self):
@@ -86,35 +119,47 @@ class ReplicationManager(BrowserView):
 
         # handling of selected types
         exportable_content_types = selected_exportable_content_types
-        
+
         if 'Any' in wf_states:
             wf_states = None
         exportfiles = self.request.get("exportfiles")
-        
+
         if exportfiles=="Yes":
             # initialize zipfile
             sIO = StringIO()
             zip = ZipFile(sIO,"w",8)
         else:
             zip = None
-        
-        csv = replicator.csvexport(encoding=encoding, delimiter=delimiter, stringdelimiter=stringdelimiter, depth=depth, datetimeformat=datetimeformat, wf_states=wf_states, zip=zip, vocabularyvalue=vocabularyvalue, exportable_content_types=exportable_content_types)
-        
+
+        csv = replicator.csvexport(
+            encoding = encoding, 
+            delimiter = delimiter,
+            stringdelimiter = stringdelimiter, 
+            depth = depth, 
+            datetimeformat = datetimeformat, 
+            wf_states = wf_states, 
+            zip = zip, 
+            vocabularyvalue = vocabularyvalue, 
+            exportable_content_types = exportable_content_types
+        )
+
         if exportfiles=="Yes":
             self.request.response.setHeader('Content-type','application/zip')
             self.request.response.setHeader('Content-Disposition', "attachment; filename=export.zip")
-        
+
             zip.writestr("export.csv",csv)
             zip.close()
             return sIO.getvalue()
         else:
+            if not encoding:
+                encoding = 'UTF-8'
             self.request.response.setHeader('Content-type','text/csv;charset='+encoding)
             self.request.response.setHeader('Content-Disposition', "attachment; filename=export.csv")
             return csv
-        
-    
+
+
     def writeMessageOnPage(self, messages, ifMsgEmpty = '', error = False):
-        """adds portal message        
+        """adds portal message
         """
         plone_tools = getToolByName(self, 'plone_utils')
         if plone_tools is not None:
@@ -123,11 +168,11 @@ class ReplicationManager(BrowserView):
                 msgType = 'error'
             else:
                 msgType = 'info'
-            
+
             #if empty
             if (len(messages)==0):
                messages = [ifMsgEmpty]
-            
+
             #display it
             for msg in messages:
                 if len(msg)==0:
@@ -136,7 +181,7 @@ class ReplicationManager(BrowserView):
                     mess = msg
                 if len(mess)>0:
                     plone_tools.addPortalMessage(mess, msgType, self.request)
-    
+
     def getAllWorkflowStates(self):
         """
         """
@@ -147,7 +192,7 @@ class ReplicationManager(BrowserView):
                 if not(s.id in states):
                     states.append(s.id)
         return states
-    
+
     def getAllWorkflowTransitions(self):
         """
         """
@@ -158,7 +203,9 @@ class ReplicationManager(BrowserView):
                 if not(t.id in transitions):
                     transitions.append(t.id)
         return transitions
-    
+
+
+
     def getServerImportableFiles(self):
         """
         """

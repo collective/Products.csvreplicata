@@ -2,7 +2,7 @@
 <object name="csvreplicataTool"
         meta_type="Factory-based Type Information with dynamic views"
         xmlns:i18n="http://xml.zope.org/namespaces/i18n">
-   
+
  <property name="title">csvreplicataTool</property>
  <property name="description"></property>
  <property name="content_icon">csvreplicataTool.gif</property>
@@ -10,7 +10,7 @@
  <property name="product">csvreplicata</property>
  <property name="factory">addcsvreplicataTool</property>
  <property name="immediate_view">base_view</property>
- <property name="global_allow">False</property>
+ <property name="global_allow">False</property>Z
  <property name="filter_content_types">False</property>
  <property name="allowed_content_types">
  </property>
@@ -25,35 +25,35 @@
  <alias from="view" to="(selected layout)"/>
  <alias from="edit" to="base_edit"/>
  <alias from="properties" to="base_metadata"/>
- <action title="View" 
+ <action title="View"
          action_id="view"
-         category="object" 
+         category="object"
          condition_expr=""
-         url_expr="string:${object_url}/view" 
+         url_expr="string:${object_url}/view"
          visible="True">
   <permission value="View"/>
  </action>
- <action title="Edit" 
+ <action title="Edit"
          action_id="edit"
-         category="object" 
-         condition_expr="not:object/@@plone_lock_info/is_locked_for_current_user"
-         url_expr="string:${object_url}/edit" 
+         category="object"
+         condition_expr="not:object/@@p25wrapper_is_locked_for_current_user"
+         url_expr="string:${object_url}/edit"
          visible="True">
   <permission value="Modify portal content"/>
  </action>
- <action title="Properties" 
+ <action title="Properties"
          action_id="metadata"
-         category="object" 
+         category="object"
          condition_expr=""
-         url_expr="string:${object_url}/properties" 
+         url_expr="string:${object_url}/properties"
          visible="True">
   <permission value="Modify portal content"/>
  </action>
- <action title="csv_settings" 
+ <action title="csv_settings"
          action_id="csv_settings"
-         category="object" 
+         category="object"
          condition_expr="python:1"
-         url_expr="string:${object_url}/csv_settings" 
+         url_expr="string:${object_url}/csv_settings"
          visible="True">
   <permission value="View"/>
  </action>

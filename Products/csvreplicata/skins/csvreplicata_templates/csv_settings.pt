@@ -70,6 +70,15 @@
                             tal:attributes="value here/portal_csvreplicatatool/serverfilepath|None"/>
                 </div>
             </div>
+ 		<div class="field">
+                <div class="widget">
+                    <label for="formElements">Date Format</label>
+                    <div class="formHelp">Datetime Format</div>
+                    <input  type="text"
+                            name="datetimeformat"
+                            tal:attributes="value here/portal_csvreplicatatool/DateTimeFormat|None"/>
+                </div>
+            </div> 
 			<div class="field">
 				<div class="widget">
 					<input class="context" type="submit" value="Save"/>

@@ -25,7 +25,7 @@ from Products.csvreplicata.config import *
 
 from Products.CMFCore.utils import UniqueObject
 
-    
+
 ##code-section module-header #fill in your manual code here
 from Products.CMFCore.utils import getToolByName
 import logging
@@ -36,8 +36,8 @@ from Products.csvreplicata import getPortalTypes
 
 ##/code-section module-header
 
-schema = Schema((
-
+schema = Schema(
+    (
     StringField(
         name='encoding',
         default="UTF-8",
@@ -92,7 +92,16 @@ schema = Schema((
             i18n_domain='csvreplicata',
         ),
     ),
-),
+    StringField(
+        name='DateTimeFormat',
+        default='%d/%m/%Y %H:%M:%S',
+        widget=StringField._properties['widget'](
+                label='Excludedfieldsclasses',
+                label_msgid='csvreplicata_label_DateTimeFormat',
+                i18n_domain='csvreplicata',
+                ),
+    ),
+    ),
 )
 
 ##code-section after-local-schema #fill in your manual code here
@@ -114,18 +123,20 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     _at_rename_after_creation = True
 
     schema = csvreplicataTool_schema
-    
+
     handlers = PersistentMapping
 
     ##code-section class-header #fill in your manual code here
     ##/code-section class-header
 
 
+
+
     # tool-constructors have no id argument, the id is fixed
     def __init__(self, id=None):
         BaseContent.__init__(self,'portal_csvreplicatatool')
         self.setTitle('')
-        
+
         ##code-section constructor-footer #fill in your manual code here
         self.setTitle('CSV Replicator tool')
         self.replicabletypes = {}
@@ -135,11 +146,11 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     def manage_afterAdd(self, item, container):
         """ initialize handlers with appconfig HANDLERS values"""
         self.handlers = HANDLERS
-        
+
     # tool should not appear in portal_catalog
     def at_post_edit_script(self):
         self.unindexObject()
-        
+
         ##code-section post-edit-method-footer #fill in your manual code here
         ##/code-section post-edit-method-footer
 
@@ -154,6 +165,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         self.setEncoding(REQUEST.get('encoding'));
         self.setDelimiter(REQUEST.get('delimiter'));
         self.setServerfilepath(REQUEST.get('serverfilepath'));
+        self.setDateTimeFormat(REQUEST.get('datetimeformat'));
 
         # Redirection of the page now that the treatment is done
         REQUEST.RESPONSE.redirect(self.absolute_url()+'/csv_settings')
@@ -265,12 +277,12 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         """
         """
         return self.handlers
-    
+
     def setHandler(self, key, value):
         """
         """
         self.handlers[key] = value
-    
+
     def delHandler(self, key):
         """
         """
