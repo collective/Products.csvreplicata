@@ -363,13 +363,15 @@ class Replicator(object):
         # be sure not to export twice the same content.
         objects = []
         for oid, o_s in objects_searchers:
+            # we do not need to filter on object meta types as plugins can export everything :)
+            # the configurable list of objects is only available for AT based contents.
             noecho = [objects.append(o)
                       for o in o_s.getObjects()
                       if (
                           (not (o in exportable_objects))
-                          and (not (o in objects))
-                          and (o.meta_type in exportable_content_types)
-                      )]
+                          and (not o in objects)
+                      )
+                      ]
         exportable_objects.extend(objects)
 
         # export content
