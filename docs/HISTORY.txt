@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.1
-----------------
+1.1 - 2009-10-17
+-----------------
 
 * A new import step to use csvreplicata to import contents [toutpt]
 
