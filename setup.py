@@ -1,12 +1,33 @@
 from setuptools import setup, find_packages
 import os
+import sys
 
 version = '1.1'
+
+setupdir = os.path.abspath(
+    os.path.dirname(__file__)
+)
+
+def read(*rnames):
+    return open(
+        os.path.join(setupdir, *rnames)
+    ).read()
+
+long_description = '%s' % (
+    read('README.txt')          + '\n' + 
+    read('docs', 'INSTALL.txt') + '\n' +
+    read('docs', 'HISTORY.txt') + '\n' + 
+    ''
+)
+
+if 'RST_TEST' in os.environ:
+    print long_description
+    sys.exit(1)
 
 setup(name='Products.csvreplicata',
       version=version,
       description="CSV import/export for Archetypes",
-      long_description=open("README.txt").read(),
+      long_description=long_description,
       # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
         "Framework :: Plone",

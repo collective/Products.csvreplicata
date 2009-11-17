@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1 - Unreleased
+1.1
 ----------------
 
 * A new import step to use csvreplicata to import contents [toutpt]
@@ -26,35 +26,32 @@ Changelog
 * Fix export when data value is not ascii [yboussard]
 
 1.0.6
------
+-------
 
-* support vocabulary defined as object method
-Contribution from Jim BAACK
+* support vocabulary defined as object method [Jim BAACK]
 
 1.0.5
 -----
 
 * fix bug crc32 with large media files
-* when you set a CSVHandledTypesSchematas default is automatically preselected for user convenience
-Contribution from Jean-Philippe CAMGUILHEM
+* when you set a CSVHandledTypesSchematas default is automatically preselected for user convenience [Jean-Philippe CAMGUILHEM]
 
 1.0.4
 -----
 
 * Uninstall problem fix
-IMPORTANT NOTE: when migrating from previous versions, you need to uninstall csvreplicata and then reinstall csvreplicata.
-Contribution from Jean-Philippe CAMGUILHEM
+
+  IMPORTANT NOTE: when migrating from previous versions, you need to uninstall csvreplicata and then reinstall csvreplicata. [Jean-Philippe CAMGUILHEM]
 
 1.0.3
 -----
 
-* Custom handlers can be now implemented outside the product, and dynamically declared to the csvreplicata tool.
-Contribution from Jean-Philippe CAMGUILHEM
+* Custom handlers can be now implemented outside the product, and dynamically declared to the csvreplicata tool. [Jean-Philippe CAMGUILHEM]
 
 1.0.2
 -----
 
-* Initial release. Contributors: Eric BREHAULT / Christophe SAUTHIER
+* Initial release.[Eric BREHAULT / Christophe SAUTHIER]
 
 1.0
 ---
