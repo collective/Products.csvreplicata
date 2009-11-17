@@ -10,7 +10,7 @@ Changelog
 
 * plugins system. Export other things than AT. take a look at interfaces and adpaters [kiorky]
 
-* some encoding bugs fixed [toutpt]
+* some encoding bugs fixed [kiorky]
 
 * datetime format settings in the tool [kiorky]
 
