@@ -1,45 +1,62 @@
 Changelog
 =========
 
-1.0.7
+1.1 - Unreleased
 ----------------
+
+* A new import step to use csvreplicata to import contents [toutpt]
+
+* Fix creationflag issue [toutpt]
+
+* plugins system. Export other things than AT. take a look at interfaces and adpaters [kiorky]
+
+* some encoding bugs fixed [toutpt]
+
+* datetime format settings in the tool [kiorky]
+
+* images/files created with folder structure in export [kiorky]
+
+* Plone 2.5 compatibility back [kiorky]
+
+1.0.7 - 2009-07-15
+------------------
 
 * Prevent fixTools from running outside of the context of Products.csvreplicata [pigeonflight]
 
 * Fix export when data value is not ascii [yboussard]
 
 1.0.6
-----------------
+-----
 
 * support vocabulary defined as object method
 Contribution from Jim BAACK
 
 1.0.5
-----------------
+-----
 
 * fix bug crc32 with large media files
 * when you set a CSVHandledTypesSchematas default is automatically preselected for user convenience
 Contribution from Jean-Philippe CAMGUILHEM
 
 1.0.4
-----------------
+-----
 
 * Uninstall problem fix
 IMPORTANT NOTE: when migrating from previous versions, you need to uninstall csvreplicata and then reinstall csvreplicata.
 Contribution from Jean-Philippe CAMGUILHEM
 
 1.0.3
-----------------
+-----
 
 * Custom handlers can be now implemented outside the product, and dynamically declared to the csvreplicata tool.
 Contribution from Jean-Philippe CAMGUILHEM
 
 1.0.2
-----------------
+-----
 
 * Initial release. Contributors: Eric BREHAULT / Christophe SAUTHIER
 
 1.0
-----------------
+---
 
 * Unreleased
