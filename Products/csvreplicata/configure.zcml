@@ -8,6 +8,7 @@
         title="CSVReplicata: import contents from csv"
         description=""
         handler=".setuphandlers.importcsvStep">
+        <depends name="plone-final" />
   </genericsetup:importStep>
 
   <include file="profiles.zcml" />
@@ -33,17 +34,17 @@
       class="Products.ATContentTypes.content.topic.ATTopic"
       interface=".interfaces.ICSVReplicable"
     />
-  
+
 
   <!-- Export / Import plugins base classes -->
   <five:implements
       class="Products.csvreplicata.adapters.CSVReplicataObjectSearcherAbstract"
       interface=".interfaces.ICSVReplicataObjectsSearcher"
-    />                                                
+    />
   <five:implements
       class="Products.csvreplicata.adapters.CSVReplicataExportPluginAbstract"
       interface=".interfaces.ICSVReplicataExportPlugin"
-    /> 
+    />
   <!-- ##/code-section configure.zcml -->
 
 </configure>

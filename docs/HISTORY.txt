@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.1.1 - Unreleased
+------------------
+
+* Add default config for importcsvStep [toutpt]
+
+* importcsvStep now depend on plone-final step [toutpt]
+
 1.1 - 2009-10-17
 -----------------
 

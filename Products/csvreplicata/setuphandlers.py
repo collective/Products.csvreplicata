@@ -128,6 +128,18 @@ def importcsvStep(context):
 
     #get import settings
     Config = ConfigParser.ConfigParser()
+    #defaults system of configparser just sucks, so set values
+    Config.add_section("replicable_types")
+    Config.add_section("settings")
+    Config.set("replicable_types", "Folder","default")
+    Config.set("replicable_types", "Document","default")
+    Config.set("settings", "encoding","utf-8")
+    Config.set("settings", "delimiter",",")
+    Config.set("settings", "stringdelimiter",'"')
+    Config.set("settings", "datetimeformat","%d/%m/%Y")
+    Config.set("settings", "wf_transition", "publish")
+    Config.set("settings", "conflict_winner","SERVER")
+    Config.set("settings", "global_path","")
     Config.read(replicatacfg.name)
     options = Config.items('replicable_types', raw=True)
     replicable_types = {}
@@ -139,52 +151,42 @@ def importcsvStep(context):
     kwargs = {}
 
     wf_transition = Config.get('settings', 'wf_transition')
-    if wf_transition:
-        kwargs['wf_transition'] = wf_transition
+    kwargs['wf_transition'] = wf_transition
 
     datetimeformat = Config.get('settings', 'datetimeformat')
-    if datetimeformat:
-        kwargs['datetimeformat'] = datetimeformat
+    kwargs['datetimeformat'] = datetimeformat
 
     delimiter = Config.get('settings', 'delimiter')
-    if delimiter:
-        kwargs['delimiter'] = delimiter
+    kwargs['delimiter'] = delimiter
 
     stringdelimiter = Config.get('settings', 'stringdelimiter')
-    if stringdelimiter:
-        kwargs['stringdelimiter'] = stringdelimiter
+    kwargs['stringdelimiter'] = stringdelimiter
 
     encoding = Config.get('settings', 'encoding')
-    if encoding:
-        kwargs['encoding'] = encoding
+    kwargs['encoding'] = encoding
 
     conflict_winner = Config.get('settings', 'conflict_winner')
-    if conflict_winner:
-        kwargs['conflict_winner'] = conflict_winner
+    kwargs['conflict_winner'] = conflict_winner
 
     wf_transition = Config.get('settings', 'wf_transition')
-    if wf_transition:
-        kwargs['wf_transition'] = wf_transition
+    kwargs['wf_transition'] = wf_transition
 
     #retrive context:
     global_path = Config.get('settings', 'global_path')
-    if global_path:
-        try:
-            folder = site.restrictedTraverse(global_path)
-        except KeyError:
-            folders = global_path.split('/')
-            current = site
-            for folder in folders:
-                if not folder:
-                    continue
-                try:
-                    current.invokeFactory('Folder', folder)
-                finally:
-                    current = current.get(folder)
-                    current.reindexObject()
-            folder = current
-    else:
-        folder = site
+    try:
+        folder = site.restrictedTraverse(global_path)
+    except KeyError:
+        folders = global_path.split('/')
+        current = site
+        for folder in folders:
+            if not folder:
+                continue
+            try:
+                current.invokeFactory('Folder', folder)
+            finally:
+                current = current.get(folder)
+                current.reindexObject()
+        folder = current
 
     # now import
     alsoProvides(folder, ICSVReplicable)
