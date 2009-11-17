@@ -282,6 +282,7 @@ class Replicator(object):
         # call events
         if is_new_object:
             event.notify(ObjectInitializedEvent(obj))
+            obj.unmarkCreationFlag()
             obj.at_post_create_script()
             obj.indexObject()
             try:
