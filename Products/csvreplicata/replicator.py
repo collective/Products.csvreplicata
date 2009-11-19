@@ -87,6 +87,7 @@ class Replicator(object):
 
         Calls recursively self._csvimport while self.flag
         """
+        loops = 0
         while self.flag :
 
             count_created, count_modified, export_date, errors = \
@@ -95,6 +96,10 @@ class Replicator(object):
                                     conflict_winner, wf_transition, zip,
                                     vocabularyvalue, count_created,
                                     count_modified, errors)
+            loops = loops + 1
+            # after 10 loops, we stop trying to resolve broken references
+            if loops > 10 :
+                self.flag = False
 
         return (count_created, count_modified, export_date, errors)
 
@@ -144,6 +149,7 @@ class Replicator(object):
             needs_another_loop = False
             for row in reader:
                 line = line + 1
+                logger.error("LINE %d" % line)
                 if not label_line:
                     # read type fields
                     if row[0] == "parent":
@@ -190,7 +196,9 @@ class Replicator(object):
                         except Exception, e:
 #                            errors.append("Error in line "+str(line) + \
 #                                          ": %s" % (e))
+                            logger.error("Error in csv file line "+str(line) + ": %s" % (e))
                             raise Exception, "Error in csv file line "+str(line) + ": %s" % (e)
+
 
                 else:
                     label_line = False
