@@ -149,7 +149,6 @@ class Replicator(object):
             needs_another_loop = False
             for row in reader:
                 line = line + 1
-                logger.error("LINE %d" % line)
                 if not label_line:
                     # read type fields
                     if row[0] == "parent":
@@ -196,7 +195,6 @@ class Replicator(object):
                         except Exception, e:
 #                            errors.append("Error in line "+str(line) + \
 #                                          ": %s" % (e))
-                            logger.error("Error in csv file line "+str(line) + ": %s" % (e))
                             raise Exception, "Error in csv file line "+str(line) + ": %s" % (e)
 
 
