@@ -21,3 +21,8 @@ HANDLERS={'default_handler': {'handler_class' : base.CSVdefault(), 'file' : Fals
           'Products.AttachmentField.AttachmentField.AttachmentField': {'handler_class' : file.CSVFile(), 'file' : True},
           }
 
+try:
+    from Products.ATBackRef import BackReferenceField
+    HANDLERS['Products.ATBackRef.BackReferenceField'] = {'handler_class' : reference.CSVReference(), 'file' : False}
+except:
+    pass
