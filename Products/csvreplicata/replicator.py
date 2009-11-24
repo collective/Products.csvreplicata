@@ -227,14 +227,14 @@ class Replicator(object):
                 "Non existent container %s " % parent_path
 
 
-        obj = getattr(container, id, None)
+        obj = getattr(container.aq_explicit, id, None)
         if obj is None:
             # object does not exist, let's create it
             attool = getToolByName(self.context, 'archetype_tool')
             at = attool.lookupType(type[0], type[1])
             portal_type = at['portal_type']
             container.invokeFactory(portal_type, id=id)
-            obj = getattr(container, id)
+            obj = getattr(container.aq_explicit, id)
             is_new_object = True
             protected = False
         else:
