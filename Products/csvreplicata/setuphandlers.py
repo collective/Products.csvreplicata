@@ -176,20 +176,8 @@ def importcsvStep(context):
     try:
         folder = site.restrictedTraverse(global_path)
     except KeyError:
-        folders = global_path.split('/')
-        current = site
-        for folder in folders:
-            if not folder:
-                continue
-            next = current.get(folder, None)
-            if next is None:
-                try:
-                    current.invokeFactory('Folder', folder)
-                finally:
-                    current = current.get(folder)
-                    current.reindexObject()
-        folder = current
-
+        logger.error('can t find global path')
+        folder = site
     # now import
     alsoProvides(folder, ICSVReplicable)
     replicator = Icsvreplicata(folder)
