@@ -181,11 +181,14 @@ def importcsvStep(context):
         for folder in folders:
             if not folder:
                 continue
-            try:
-                current.invokeFactory('Folder', folder)
-            finally:
-                current = current.get(folder)
-                current.reindexObject()
+            current = current.get(folder, None)
+            if current is None:
+
+                try:
+                    current.invokeFactory('Folder', folder)
+                finally:
+                    current = current.get(folder)
+                    current.reindexObject()
         folder = current
 
     # now import
