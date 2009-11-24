@@ -181,9 +181,8 @@ def importcsvStep(context):
         for folder in folders:
             if not folder:
                 continue
-            current = current.get(folder, None)
-            if current is None:
-
+            next = current.get(folder, None)
+            if next is None:
                 try:
                     current.invokeFactory('Folder', folder)
                 finally:
