@@ -117,7 +117,8 @@ def importcsvStep(context):
     """
     replicatacfg = context.openDataFile('replicata.cfg')
     replicatacsv = context.openDataFile('replicata.csv')
-    if replicatacfg is None or replicatacsv is None:
+    replicatazip = context.openDataFile('replicata.zip')
+    if replicatacfg is None or (replicatacsv is None or replicatazip is None):
         return
     site = context.getSite()
     wftool = getToolByName(site, 'portal_workflow')
@@ -170,6 +171,10 @@ def importcsvStep(context):
 
     wf_transition = Config.get('settings', 'wf_transition')
     kwargs['wf_transition'] = wf_transition
+
+    if replicatazip:
+        from zipfile import ZipFile
+        kwargs['zip'] = ZipFile(replicatazip.name)
 
     #retrive context:
     global_path = Config.get('settings', 'global_path')
