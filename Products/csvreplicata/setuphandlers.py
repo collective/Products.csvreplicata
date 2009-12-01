@@ -118,7 +118,7 @@ def importcsvStep(context):
     replicatacfg = context.openDataFile('replicata.cfg')
     replicatacsv = context.openDataFile('replicata.csv')
     replicatazip = context.openDataFile('replicata.zip')
-    if replicatacfg is None or (replicatacsv is None or replicatazip is None):
+    if replicatacfg is None or replicatacsv is None:
         return
     site = context.getSite()
     wftool = getToolByName(site, 'portal_workflow')
