@@ -14,12 +14,12 @@ from base import CSVdefault
 
 import logging
 logger = logging.getLogger('HANDLER')
- 
-        
+
+
 class CSVReference(CSVdefault):
     """
     """
-    
+
     def get(self, obj, field, context=None):
         """
         """
@@ -36,7 +36,7 @@ class CSVReference(CSVdefault):
                 else:
                     l.append(path)
             return '\n'.join(l)
-    
+
     def set(self, obj, field, value, context=None):
         if value == '':
             ref = []
@@ -44,12 +44,17 @@ class CSVReference(CSVdefault):
             value = value.split('\n')
             ref = []
             for path in value:
+                if isinstance(path, unicode):
+                    try:
+                        path = path.encode('utf-8', 'ignore')
+                    except Exception, e:
+                        pass
                 try:
                     target = obj.unrestrictedTraverse(path)
                     ref.append(target)
-                except Exception:
+                except Exception, e:
                     raise csvreplicataBrokenReferenceException, path + \
                     " cannot be found"
-                
+
         self.store(field, obj, ref)
-        
+

@@ -141,6 +141,7 @@ def importcsvStep(context):
     Config.set("settings", "wf_transition", "publish")
     Config.set("settings", "conflict_winner","SERVER")
     Config.set("settings", "global_path","")
+    Config.set("settings", "ignore_content_errors","false")
     Config.read(replicatacfg.name)
     options = Config.items('replicable_types', raw=True)
     replicable_types = {}
@@ -171,6 +172,13 @@ def importcsvStep(context):
 
     wf_transition = Config.get('settings', 'wf_transition')
     kwargs['wf_transition'] = wf_transition
+
+    signore_content_errors = Config.get('settings', 'ignore_content_errors')
+    ignore_content_errors = False
+    if signore_content_errors:
+        if signore_content_errors == 'true':
+            ignore_content_errors = True
+    kwargs['ignore_content_errors'] = ignore_content_errors 
 
     if replicatazip:
         from zipfile import ZipFile

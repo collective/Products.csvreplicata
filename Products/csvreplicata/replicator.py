@@ -77,25 +77,42 @@ class Replicator(object):
         self.flag = True
         self.site_encoding = getSiteEncoding(context)
 
-    def csvimport(self, csvfile, encoding=None, delimiter=None,
-                  stringdelimiter=None, datetimeformat=None,
-                  conflict_winner="SERVER", wf_transition=None, zip=None,
-                  vocabularyvalue="No", count_created=0, count_modified=0,
-                  errors=[]):
+    def csvimport(self, csvfile, 
+                  encoding=None, 
+                  delimiter=None,
+                  stringdelimiter=None, 
+                  datetimeformat=None,
+                  conflict_winner="SERVER", 
+                  wf_transition=None, zip=None,
+                  vocabularyvalue="No", 
+                  count_created=0,
+                  count_modified=0,
+                  errors=None, 
+                  ignore_content_errors=False):
         """
         CSV import.
 
         Calls recursively self._csvimport while self.flag
         """
+        if not errors:
+            errors = []
         loops = 0
         while self.flag :
 
             count_created, count_modified, export_date, errors = \
-                    self._csvimport(csvfile, encoding, delimiter,
-                                    stringdelimiter, datetimeformat,
-                                    conflict_winner, wf_transition, zip,
-                                    vocabularyvalue, count_created,
-                                    count_modified, errors)
+                    self._csvimport(csvfile, 
+                                    encoding=encoding, 
+                                    delimiter=delimiter,
+                                    stringdelimiter=stringdelimiter, 
+                                    datetimeformat=datetimeformat,
+                                    conflict_winner=conflict_winner, 
+                                    wf_transition=wf_transition, 
+                                    zip=zip,
+                                    vocabularyvalue=vocabularyvalue, 
+                                    count_created=count_created,
+                                    count_modified=count_modified, 
+                                    errors=errors, 
+                                    ignore_content_errors=ignore_content_errors)
             loops = loops + 1
             # after 10 loops, we stop trying to resolve broken references
             if loops > 10 :
@@ -103,9 +120,20 @@ class Replicator(object):
 
         return (count_created, count_modified, export_date, errors)
 
-    def _csvimport(self, csvfile, encoding, delimiter, stringdelimiter,
-                   datetimeformat, conflict_winner, wf_transition, zip,
-                   vocabularyvalue, count_created, count_modified, errors):
+    def _csvimport(self, 
+                   csvfile, 
+                   encoding, 
+                   delimiter, 
+                   stringdelimiter,
+                   datetimeformat, 
+                   conflict_winner, 
+                   wf_transition, 
+                   zip,
+                   vocabularyvalue, 
+                   count_created, 
+                   count_modified, 
+                   errors,
+                   ignore_content_errors=False):
 
             csvfile.seek(0)
 
@@ -147,6 +175,8 @@ class Replicator(object):
             specific_fields = None
             label_line = False
             needs_another_loop = False
+            #rows = [r for r in reader]
+            #for row in rows:
             for row in reader:
                 line = line + 1
                 if not label_line:
@@ -167,6 +197,7 @@ class Replicator(object):
                                                               wf_transition,
                                                               zip,
                                                               encoding=encoding,
+                                                              ignore_content_errors=ignore_content_errors
                                                              )
                             if is_new:
                                 count_created = count_created + 1
@@ -207,8 +238,16 @@ class Replicator(object):
 
 
 
-    def importObject(self, row, specific_fields, type, conflict_winner,
-                     export_date, wf_transition, zip, encoding='utf-8'):
+    def importObject(self, 
+                     row, 
+                     specific_fields, 
+                     type, 
+                     conflict_winner,
+                     export_date, 
+                     wf_transition, 
+                     zip, 
+                     encoding='utf-8',
+                     ignore_content_errors=False):
         """
         """
         modified = False
@@ -252,36 +291,73 @@ class Replicator(object):
         i = 3
         for f in specific_fields:
             if f is not None and f != "":
-                type = obj.Schema().getField(f).getType()
-                h = handlers.get(type, handlers['default_handler'])
-                v = None
+                field, type, h = None, None, None
                 try:
-                    v = row[i].decode(encoding)
-                except:
-                    v = row[i].encode('utf-8').decode(encoding)
-                handler = h['handler_class']
-                # XXX:on plone25, 'allowDiscussion' is stored in a stringfield, force to be bool.
-                if f == 'allowDiscussion':
-                    h = handlers.get('Products.Archetypes.Field.BooleanField')
-                handler = h['handler_class']
-                old_value = handler.get(obj, f, context=self)
-                if isinstance(old_value, basestring):
-                    if not isinstance(old_value, unicode) and isinstance(v, unicode):
-                        try:
-                            old_value = old_value.decode('utf-8')
-                        except:
-                            pass
-                if old_value != v:
-                    if protected:
-                        raise csvreplicataConflictException, \
-                        "Overlapping content modified on" \
-                        " the server after exportation"
-                    else:
-                        modified = True
-                        if h['file']:
-                            handler.set(obj, f, v, context=self, zip=zip, parent_path=parent_path)
+                    field = obj.Schema().getField(f)
+                    type = field.getType()
+                    h = handlers.get(type, handlers['default_handler'])
+                    v = None
+                    try:
+                        v = row[i].decode(encoding)
+                    except:
+                        v = row[i].encode('utf-8').decode(encoding)
+                    handler = h['handler_class']
+                    # XXX:on plone25, 'allowDiscussion' is stored in a stringfield, force to be bool.
+                    if f == 'allowDiscussion':
+                        h = handlers.get('Products.Archetypes.Field.BooleanField')
+                    handler = h['handler_class']
+                    old_value = handler.get(obj, f, context=self)
+                    if isinstance(old_value, basestring):
+                        if not isinstance(old_value, unicode) and isinstance(v, unicode):
+                            try:
+                                old_value = old_value.decode('utf-8')
+                            except:
+                                pass
+                    if old_value != v:
+                        if protected:
+                            raise csvreplicataConflictException, \
+                            "Overlapping content modified on" \
+                            " the server after exportation"
                         else:
-                            handler.set(obj, f, v, context=self)
+                            modified = True
+                            if h['file']:
+                                handler.set(obj, f, v, context=self, zip=zip, parent_path=parent_path)
+                            else:
+                                handler.set(obj, f, v, context=self)
+                except Exception, e:
+                    if ignore_content_errors:
+                        where = 'Path:\t%s\n\tTitle: %s\n' % (
+                            '/'.join(obj.getPhysicalPath()),
+                            obj.Title(), 
+                        )
+                        what = ''
+                        if field: what += '\tfield: %s\n' % field
+                        if type:  what += '\ttype: %s\n' % type
+                        handler = ''
+                        if h:
+                            hc = h.get('handler_class', None)
+                            hfile = h.get('file', None)
+                            if hc:
+                                handler += '\thandler: %s\n' % hc.__class__
+                            if hfile:
+                                handler += '\thandlerfile: %s\n' % hfile
+
+                        logger.warning(
+                            'Oops:\n'
+                            '%s'
+                            '%s'
+                            '%s'
+                            '\tException: %s\n'
+                            '\tMessage: %s\n' % (
+                                where, 
+                                what,
+                                handler,
+                                e.__class__, 
+                                e
+                            )
+                        )
+                    else:
+                        raise
 
             i = i+1
 

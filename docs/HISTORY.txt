@@ -8,6 +8,12 @@ Changelog
 
 * importcsvStep now depend on plone-final step [toutpt]
 
+* option ``ignore_content_errors`` added to import step config (set it to true) and to the replicator methods. It allows to log errors when setting fields instead of raising exceptions and stop. [kiorky]  
+
+* Fix silly empty list bug in replicator.csvimport prototype. [kiorky]
+
+* Fix unicode error with reference fields [kiorky]  
+
 1.1 - 2009-10-17
 -----------------
 
