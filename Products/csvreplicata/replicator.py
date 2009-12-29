@@ -294,6 +294,9 @@ class Replicator(object):
                 field, type, h = None, None, None
                 try:
                     field = obj.Schema().getField(f)
+                    if field is None and ignore_content_errors:
+                        logger.error('field %s is None'%f)
+                        continue
                     type = field.getType()
                     h = handlers.get(type, handlers['default_handler'])
                     v = None
