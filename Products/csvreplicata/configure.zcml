@@ -24,8 +24,6 @@
         factory=".replicator.Replicator"
         />
 
-  <five:traversable class=".interfaces.ICSVReplicable"/>
-
   <five:implements
       class="Products.ATContentTypes.content.folder.ATFolder"
       interface=".interfaces.ICSVReplicable"
