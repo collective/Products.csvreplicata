@@ -26,3 +26,4 @@ try:
     HANDLERS['Products.ATBackRef.BackReferenceField'] = {'handler_class' : reference.CSVReference(), 'file' : False}
 except:
     pass
+

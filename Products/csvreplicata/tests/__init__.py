@@ -1,3 +1,0 @@
-# tests module
-
-GLOBALS = globals()
