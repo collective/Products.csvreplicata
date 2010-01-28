@@ -79,6 +79,25 @@
                             tal:attributes="value here/portal_csvreplicatatool/DateTimeFormat|None"/>
                 </div>
             </div> 
+
+            <div class="field">
+              <div class="widget"
+                tal:define="pfvalue here/getPlainFormat|here/portal_csvreplicatatool/getPlainFormat|nothing"> 
+                <label for="is_plain_format">Use plain csv format instead of original</label>
+                <input class="noborder" name="is_plain_format" id="is_plain_format" 
+                  tal:attributes="checked python:pfvalue and 'checked' or ''"
+                  type="checkbox"/>
+              </div>
+            </div>
+            <div class="field">
+              <div class="widget">
+                <label for="formElements">Temporary path for exports </label>
+                <div class="formHelp">Fill only if not default temporary storage</div>
+                <input  type="text" id="tempPath" name="tempPath" 
+                  tal:attributes="value here/getTempPath|here/portal_csvreplicatatool/getTempPath|nothing"/>
+              </div>
+            </div>  
+
 			<div class="field">
 				<div class="widget">
 					<input class="context" type="submit" value="Save"/>

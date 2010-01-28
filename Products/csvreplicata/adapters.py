@@ -37,6 +37,10 @@ class CSVReplicataPluginAbstract(object):
     def __init__(self, replicator, context):
         self.replicator = replicator
         self.context = context
+        self.prefix = 'ReplicataPlugin_%s_%s_' % (
+            self.__module__.replace('.', '_'),
+            self.__class__.__name__
+        )
 
 class CSVReplicataObjectSearcherAbstract(CSVReplicataPluginAbstract):
     """Just to be marked in zcml."""
@@ -56,7 +60,7 @@ class CSVReplicataExportPluginAbstract(CSVReplicataPluginAbstract):
     def append_ids(self, row_ids):
         """."""
         row_ids.extend(
-            [i 
+            ['%s%s' % (self.prefix, i)
              for i in self.ids 
              if not i in row_ids]
         )
@@ -67,7 +71,7 @@ class CSVReplicataExportPluginAbstract(CSVReplicataPluginAbstract):
 
     def set_values(self, row, row_ids):
         """."""
-        raise Exception('Not implemented.')
+        raise Exception('Not implemented.', prefix='')
 
 # example plugins for searching/exporting comments on plone2.5
 
@@ -161,53 +165,6 @@ class CSVReplicataExportPluginAbstract(CSVReplicataPluginAbstract):
 #        logger.info('All comments loaded.')
 #        return objs
 #
-#class CommentsExporter(CSVReplicataExportPluginAbstract):
-#    """."""
-#    def __init__(self, *args, **kwargs):
-#        CSVReplicataExportPluginAbstract.__init__(self, *args, **kwargs)
-#        self.comment = None
-#        self.comment_as_dict = None
-#        if self.context.meta_type in ['Discussion Item']:
-#            try:
-#                self.comment = {}
-#                self.comment['creators']          = self.context.listCreators()
-#                self.comment['contributors']      = self.context.contributors
-#                self.comment['description']       = self.context.description
-#                self.comment['effective_date']    = self.context.effective_date
-#                self.comment['expiration_date']   = self.context.expiration_date
-#                self.comment['id']                = self.context.id
-#                self.comment['in_reply_to']       = self.context.in_reply_to
-#                self.comment['modification_date'] = self.context.modification_date
-#                self.comment['subject']           = self.context.subject
-#                self.comment['text']              = self.context.text
-#                self.comment['text_format']       = self.context.text_format
-#                self.comment['title']             = self.context.title
-#                self.comment['cooked_text']       = self.context.cooked_text
-#                self.comment['language']          = self.context.language
-#                self.comment['path']              = '/'.join(self.context.getPhysicalPath())
-#                self.comment['in_reply_to']       = '/'.join(self.context.inReplyTo().getPhysicalPath())
-#                self.comment['in_reply_to_chain'] = ['/'.join(obj.getPhysicalPath()) 
-#                                                     for obj in self.context.parentsInThread()]
-#                 
-#                self.comment_as_dict = get_dict_csv_mapping(self.comment, 
-#                                                            export_key = 'comment',
-#                                                            replicator=self.replicator)
-#                ks = self.comment_as_dict.keys()
-#                ks.sort()
-#                self.ids = ks
-#            except:
-#                pass
-#
-#    def fill_values(self, row, row_ids):
-#        """."""
-#        for id in row_ids:
-#            if id in self.ids:
-#                index = row_ids.index(id)
-#                if index < len(row):
-#                    row[index] = self.comment_as_dict[id]
-#
-#    def set_values(self, row, row_ids):
-#        """."""
 #        pass 
                  
 

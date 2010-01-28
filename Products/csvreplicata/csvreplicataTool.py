@@ -38,69 +38,87 @@ from Products.csvreplicata import getPortalTypes
 
 schema = Schema(
     (
-    StringField(
-        name='encoding',
-        default="UTF-8",
-        widget=StringField._properties['widget'](
-            label='Encoding',
-            label_msgid='csvreplicata_label_encoding',
-            i18n_domain='csvreplicata',
+        StringField(
+            name='encoding',
+            default="UTF-8",
+            widget=StringField._properties['widget'](
+                label='Encoding',
+                label_msgid='csvreplicata_label_encoding',
+                i18n_domain='csvreplicata',
+            ),
         ),
-    ),
-    StringField(
-        name='delimiter',
-        default=";",
-        widget=StringField._properties['widget'](
-            label='Delimiter',
-            label_msgid='csvreplicata_label_delimiter',
-            i18n_domain='csvreplicata',
+        StringField(
+            name='delimiter',
+            default=";",
+            widget=StringField._properties['widget'](
+                label='Delimiter',
+                label_msgid='csvreplicata_label_delimiter',
+                i18n_domain='csvreplicata',
+            ),
         ),
-    ),
-    StringField(
-        name='stringdelimiter',
-        default='"',
-        widget=StringField._properties['widget'](
-            label='Stringdelimiter',
-            label_msgid='csvreplicata_label_stringdelimiter',
-            i18n_domain='csvreplicata',
+        StringField(
+            name='stringdelimiter',
+            default='"',
+            widget=StringField._properties['widget'](
+                label='Stringdelimiter',
+                label_msgid='csvreplicata_label_stringdelimiter',
+                i18n_domain='csvreplicata',
+            ),
         ),
-    ),
-    StringField(
-        name='serverfilepath',
-        default="",
-        widget=StringField._properties['widget'](
-            label='Server import folder',
-            label_msgid='csvreplicata_label_serverfilepath',
-            i18n_domain='csvreplicata',
+        StringField(
+            name='serverfilepath',
+            default="",
+            widget=StringField._properties['widget'](
+                label='Server import folder',
+                label_msgid='csvreplicata_label_serverfilepath',
+                i18n_domain='csvreplicata',
+            ),
         ),
-    ),
-    LinesField(
-        name='excludedfields',
-        default=['id', 'locallyAllowedTypes', 'constrainTypesMode',
-                 'immediatelyAddableTypes'],
-        widget=LinesField._properties['widget'](
-            label='Excludedfields',
-            label_msgid='csvreplicata_label_excludedfields',
-            i18n_domain='csvreplicata',
+        LinesField(
+            name='excludedfields',
+            default=['id', 'locallyAllowedTypes', 'constrainTypesMode',
+                     'immediatelyAddableTypes'],
+            widget=LinesField._properties['widget'](
+                label='Excludedfields',
+                label_msgid='csvreplicata_label_excludedfields',
+                i18n_domain='csvreplicata',
+            ),
         ),
-    ),
-    LinesField(
-        name='excludedfieldsclasses',
-        widget=LinesField._properties['widget'](
-            label='Excludedfieldsclasses',
-            label_msgid='csvreplicata_label_excludedfieldsclasses',
-            i18n_domain='csvreplicata',
+        BooleanField(
+            'plainFormat',
+            default=False,
+            widget=BooleanWidget(
+                label='Plain format',
+                label_msgid='csvreplicata_plain_format',
+                i18n_domain='csvreplicata',
+            ),
         ),
-    ),
-    StringField(
-        name='DateTimeFormat',
-        default='%d/%m/%Y %H:%M:%S',
-        widget=StringField._properties['widget'](
+        StringField(
+            name='DateTimeFormat',
+            default='%d/%m/%Y %H:%M:%S',
+            widget=StringField._properties['widget'](
                 label='Excludedfieldsclasses',
                 label_msgid='csvreplicata_label_DateTimeFormat',
                 i18n_domain='csvreplicata',
-                ),
-    ),
+            ),
+        ),
+        StringField(
+            name='tempPath',
+            default='',
+            widget=StringField._properties['widget'](
+                label='Temporary path',
+                label_msgid='csvreplicata_label_tempPath',
+                i18n_domain='csvreplicata',
+            ),
+        ), 
+        LinesField(
+            name='excludedfieldsclasses',
+            widget=LinesField._properties['widget'](
+                label='Excludedfieldsclasses',
+                label_msgid='csvreplicata_label_excludedfieldsclasses',
+                i18n_domain='csvreplicata',
+            ),
+        ),
     ),
 )
 
@@ -166,7 +184,8 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         self.setDelimiter(REQUEST.get('delimiter'));
         self.setServerfilepath(REQUEST.get('serverfilepath'));
         self.setDateTimeFormat(REQUEST.get('datetimeformat'));
-
+        self.setTempPath(REQUEST.get('tempPath'))
+        self.setPlainFormat(REQUEST.get('is_plain_format', '') == 'on')
         # Redirection of the page now that the treatment is done
         REQUEST.RESPONSE.redirect(self.absolute_url()+'/csv_settings')
 

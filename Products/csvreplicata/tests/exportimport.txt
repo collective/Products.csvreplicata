@@ -1,0 +1,249 @@
+Export / Import in plain format
+------------------------------------
+
+Export
++++++++++
+here we export folders and documents
+::
+
+    >>> self.setRoles(['Manager'])
+    >>> id=self.folder.invokeFactory('Document'      , id='doc1'   , title="Document 1")
+    >>> id=self.folder.invokeFactory('Document'      , id='doc2'   , title="Document 2")
+    >>> id=self.folder.invokeFactory('News Item'     , id='news1'  , title="news 'super' 3")
+    >>> id=self.folder.invokeFactory('Document'      , id='doc4'   , title="Document 4")
+    >>> id=self.folder.invokeFactory('Folder'        , id='sub1'   , title="Séléction")
+    >>> id=self.folder.sub1.invokeFactory('Document' , id='doc11'  , title="Document 1 du dossier 1")
+    >>> id=self.folder.sub1.invokeFactory('News Item', id='news21' , title="news 1 du dossier 1")
+    >>> id=self.folder.sub1.invokeFactory('Document' , id='doc31'  , title="Document 2 du dossier 1")
+    >>> self.portal.portal_csvreplicatatool.getPlainFormat()
+    False
+
+    >>> self.portal.portal_csvreplicatatool.getEncoding()
+    'UTF-8'
+    >>> self.portal.portal_csvreplicatatool.getDelimiter()
+    ';'
+    >>> self.portal.portal_csvreplicatatool.getStringdelimiter()
+    '"'
+    >>> self.portal.portal_csvreplicatatool.replicabletypes =  {'Document': ['default'], 'Folder': ['default'], 'News': ['Default']}
+    >>> from Products.csvreplicata.interfaces import Icsvreplicata
+    >>> repl = Icsvreplicata(self.folder)
+    >>> print repl.csvexport(exportable_content_types=['Document', 'Folder', 'News Item'], depth=0).getvalue()
+    "/plone/Members/test_user_1_";...
+    "parent";"id";"type";"title";"description";"text"
+    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    "";"doc1";"Document";"Document 1";"";""
+    "";"doc2";"Document";"Document 2";"";""
+    "parent";"id";"type"
+    "Parent folder";"Identifier";"Content type"
+    "";"news1";"News Item"
+    "parent";"id";"type";"title";"description";"text"
+    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    "";"doc4";"Document";"Document 4";"";""
+    "parent";"id";"type";"title";"description"
+    "Parent folder";"Identifier";"Content type";"Title";"label_description"
+    "";"sub1";"Folder";"Séléction";""
+    "parent";"id";"type";"title";"description";"text"
+    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    "sub1";"doc11";"Document";"Document 1 du dossier 1";"";""
+    "parent";"id";"type"
+    "Parent folder";"Identifier";"Content type"
+    "sub1";"news21";"News Item"
+    "parent";"id";"type";"title";"description";"text"
+    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    "sub1";"doc31";"Document";"Document 2 du dossier 1";"";""
+    <BLANKLINE>
+
+
+This output is not that good to deal with CSV apis, we will try to export it to a flat structure.
+::
+
+    >>> from Products.csvreplicata import replicator
+    >>> self.portal.portal_csvreplicatatool.setPlainFormat(True)
+    >>> self.portal.portal_csvreplicatatool.getPlainFormat()
+    True
+    >>> repl = Icsvreplicata(self.folder)
+    >>> print Icsvreplicata(self.folder).csvexport(exportable_content_types=['Document', 'Folder', 'News Item'], depth=0).getvalue()
+    "startpoint";"replicata_export_date";"parent";"id";"type";"title";"description";"text"
+    "Start point";"Export Date";"Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    "/plone/Members/test_user_1_";...;"";"doc1";"Document";"Document 1";"";""
+    "/plone/Members/test_user_1_";...;"";"doc2";"Document";"Document 2";"";""
+    "/plone/Members/test_user_1_";...;"";"news1";"News Item";"";"";""
+    "/plone/Members/test_user_1_";...;"";"doc4";"Document";"Document 4";"";""
+    "/plone/Members/test_user_1_";...;"";"sub1";"Folder";"Séléction";"";""
+    "/plone/Members/test_user_1_";...;"sub1";"doc11";"Document";"Document 1 du dossier 1";"";""
+    "/plone/Members/test_user_1_";...;"sub1";"news21";"News Item";"";"";""
+    "/plone/Members/test_user_1_";...;"sub1";"doc31";"Document";"Document 2 du dossier 1";"";""
+    <BLANKLINE>
+
+Redo the export but with a plugin that find the title on the object.
+::
+
+    >>> from Products.csvreplicata import adapters
+    >>> class CustomExporter(adapters.CSVReplicataExportPluginAbstract):
+    ...    def __init__(self, *args, **kwargs):
+    ...        adapters.CSVReplicataExportPluginAbstract.__init__(self, *args, **kwargs)
+    ...        self.ids.append('title')
+    ...    def fill_values(self, row, row_ids):
+    ...        """."""
+    ...        for id in row_ids:
+    ...            if id.replace(self.prefix, '') in self.ids:
+    ...                index = row_ids.index(id)
+    ...                if index < len(row):
+    ...                    row[index] = self.context.Title()
+    ...    def set_values(self, row, row_ids):
+    ...        """."""
+    ...        print "plugin.setValue called with %s <-> %s" % (row, row_ids)
+    ...
+    >>> provideAdapter(CustomExporter, (interfaces.Icsvreplicata, zope.interface.Interface), interfaces.ICSVReplicataExportPlugin, name ='fooplugin' )
+    >>> from csv import DictReader
+    >>> content = Icsvreplicata(self.folder).csvexport(exportable_content_types=['Document', 'Folder', 'News Item'], depth=None).getvalue()
+    >>> items = [item for item in DictReader(StringIO(content), delimiter=";", quotechar='"')]
+    >>> keys = items[0].keys();keys.sort()
+
+As we cant predict order of the keys, doing some magic to order them before testing.
+::
+ 
+    >>> pprint([[(key, item[key]) for key in keys if not 'date' in key]for item in items], width=130) # doctest:+REPORT_NDIFF
+    [[('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title',
+       'ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title'),
+      ('description', 'label_description'),
+      ('id', 'Identifier'),
+      ('parent', 'Parent folder'),
+      ('startpoint', 'Start point'),
+      ('text', 'label_body_text'),
+      ('title', 'Title'),
+      ('type', 'Content type')],
+     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'Document 1'),
+      ('description', ''),
+      ('id', 'doc1'),
+      ('parent', ''),
+      ('startpoint', '/plone/Members/test_user_1_'),
+      ('text', ''),
+      ('title', 'Document 1'),
+      ('type', 'Document')],
+     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'Document 2'),
+      ('description', ''),
+      ('id', 'doc2'),
+      ('parent', ''),
+      ('startpoint', '/plone/Members/test_user_1_'),
+      ('text', ''),
+      ('title', 'Document 2'),
+      ('type', 'Document')],
+     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', "news 'super' 3"),
+      ('description', ''),
+      ('id', 'news1'),
+      ('parent', ''),
+      ('startpoint', '/plone/Members/test_user_1_'),
+      ('text', ''),
+      ('title', ''),
+      ('type', 'News Item')],
+     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'Document 4'),
+      ('description', ''),
+      ('id', 'doc4'),
+      ('parent', ''),
+      ('startpoint', '/plone/Members/test_user_1_'),
+      ('text', ''),
+      ('title', 'Document 4'),
+      ('type', 'Document')],
+     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'S\xc3\xa9l\xc3\xa9ction'),
+      ('description', ''),
+      ('id', 'sub1'),
+      ('parent', ''),
+      ('startpoint', '/plone/Members/test_user_1_'),
+      ('text', ''),
+      ('title', 'S\xc3\xa9l\xc3\xa9ction'),
+      ('type', 'Folder')],
+     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'Document 1 du dossier 1'),
+      ('description', ''),
+      ('id', 'doc11'),
+      ('parent', 'sub1'),
+      ('startpoint', '/plone/Members/test_user_1_'),
+      ('text', ''),
+      ('title', 'Document 1 du dossier 1'),
+      ('type', 'Document')],
+     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'news 1 du dossier 1'),
+      ('description', ''),
+      ('id', 'news21'),
+      ('parent', 'sub1'),
+      ('startpoint', '/plone/Members/test_user_1_'),
+      ('text', ''),
+      ('title', ''),
+      ('type', 'News Item')],
+     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'Document 2 du dossier 1'),
+      ('description', ''),
+      ('id', 'doc31'),
+      ('parent', 'sub1'),
+      ('startpoint', '/plone/Members/test_user_1_'),
+      ('text', ''),
+      ('title', 'Document 2 du dossier 1'),
+      ('type', 'Document')]]
+
+
+Import
++++++++++
+
+Then, now that we got a working export, what about importing it
+::
+
+    >>> id = self.folder.invokeFactory('Folder'      , id='fa'   , title="tests import")
+    >>> id = self.folder.invokeFactory('Folder'      , id='fb'   , title="tests import")
+    >>> fa = self.folder.fa; fb = self.folder.fb
+
+Import in CSVReplicata plain format, an entry per line without contextual type hinting
+::
+
+    >>> CSV = StringIO("""\
+    ... "startpoint";"replicata_export_date";"parent";"id";"type";"title";"description";"ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title";"text"
+    ... "Start point";"Export Date";"Parent folder";"Identifier";"Content type";"Title";"label_description";"ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title";"label_body_text"
+    ... "/plone/Members/test_user_1_";20090101010101;"";"doc1";"Document";"Document 1";"";"Document 1";""
+    ... "/plone/Members/test_user_1_";20090101010101;"";"doc2";"Document";"Document 2";"";"Document 2";""
+    ... "/plone/Members/test_user_1_";20090101010101;"";"news1";"News Item";"";"";"news 'super' 3";""
+    ... "/plone/Members/test_user_1_";20090101010101;"";"doc4";"Document";"Document 4";"";"Document 4";""
+    ... "/plone/Members/test_user_1_";20090101010101;"";"sub1";"Folder";"Séléction";"";"Séléction";""
+    ... "/plone/Members/test_user_1_";20090101010101;"sub1";"doc11";"Document";"Document 1 du dossier 1";"";"Document 1 du dossier 1";""
+    ... "/plone/Members/test_user_1_";20090101010101;"sub1";"news21";"News Item";"";"";"news 1 du dossier 1";""
+    ... "/plone/Members/test_user_1_";20090101010101;"sub1";"doc31";"Document";"Document 2 du dossier 1";"";"Document 2 du dossier 1";""
+    ... """)
+    >>> print Icsvreplicata(self.folder.fa).csvimport(CSV, datetimeformat='%d%m%Y', delimiter=";", stringdelimiter='"', plain_format=True)
+    (8, 0, ..., [])
+    >>> self.folder.fa.objectIds()
+    ['doc1', 'doc2', 'news1', 'doc4', 'sub1']
+    >>> self.folder.fa.sub1.objectIds()
+    ['doc11', 'news21', 'doc31']
+
+Import in CSVReplicata orignal format, an entry per line with contextual type hinting
+:: 
+
+    >>> CSV = StringIO("""\
+    ... "/plone/Members/test_user_1_";20100101010101
+    ... "parent";"id";"type";"title";"description";"text"
+    ... "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    ... "";"doc1";"Document";"Document 1";"";""
+    ... "";"doc2";"Document";"Document 2";"";""
+    ... "parent";"id";"type"
+    ... "Parent folder";"Identifier";"Content type"
+    ... "";"news1";"News Item"
+    ... "parent";"id";"type";"title";"description";"text"
+    ... "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    ... "";"doc4";"Document";"Document 4";"";""
+    ... "parent";"id";"type";"title";"description"
+    ... "Parent folder";"Identifier";"Content type";"Title";"label_description"
+    ... "";"sub1";"Folder";"Séléction";""
+    ... "parent";"id";"type";"title";"description";"text"
+    ... "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    ... "sub1";"doc11";"Document";"Document 1 du dossier 1";"";""
+    ... "parent";"id";"type"
+    ... "Parent folder";"Identifier";"Content type"
+    ... "sub1";"news21";"News Item"
+    ... "parent";"id";"type";"title";"description";"text"
+    ... "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    ... "sub1";"doc31";"Document";"Document 2 du dossier 1";"";""
+    ... """)
+    >>> print Icsvreplicata(self.folder.fb).csvimport(CSV, datetimeformat='%d%m%Y', delimiter=";", stringdelimiter='"', plain_format=False)
+    (8, 0, ..., [])
+    >>> self.folder.fb.objectIds()
+    ['doc1', 'doc2', 'news1', 'doc4', 'sub1']
+    >>> self.folder.fb.sub1.objectIds()
+    ['doc11', 'news21', 'doc31'] 
+
+

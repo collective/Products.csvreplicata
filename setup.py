@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 import sys
 
-version = '1.1'
+version = '1.1.2'
 
 setupdir = os.path.abspath(
     os.path.dirname(__file__)
@@ -14,9 +14,15 @@ def read(*rnames):
     ).read()
 
 long_description = '%s' % (
-    read('README.txt')          + '\n' + 
+    read('README.txt')          + '\n' +
     read('docs', 'INSTALL.txt') + '\n' +
-    read('docs', 'HISTORY.txt') + '\n' + 
+    'Detailled documentation'   + '\n' +
+    '======================='   + '\n' +
+    read('Products', 'csvreplicata', 'tests', 'csvreplicata.txt') + '\n' +
+    read('Products', 'csvreplicata', 'tests', 'exportimport.txt') + '\n' +
+    read('Products', 'csvreplicata', 'tests', 'handlers.txt') + '\n' +
+    read('Products', 'csvreplicata', 'tests', 'download.txt') + '\n' +
+    read('docs', 'HISTORY.txt') + '\n' +
     ''
 )
 

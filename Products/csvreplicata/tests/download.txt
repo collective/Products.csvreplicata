@@ -1,0 +1,127 @@
+
+The replicator exporter/downloader
+------------------------------------
+
+Export in normal mode
++++++++++++++++++++++++++
+here we export folders and documents ::
+
+    >>> from Products.csvreplicata.browser import manager
+    >>> self.portal.portal_csvreplicatatool.replicabletypes = \
+    ... {'Document':['default'], 'Folder':['default'],
+    ... 'News Item': ['default'], 'File': ['default'] }
+    >>> import re
+    >>> self.setRoles(['Manager'])
+    >>> id=self.folder.invokeFactory('Document'      , id='doc1'   , title="Document 1")
+    >>> id=self.folder.invokeFactory('Document'      , id='doc2'   , title="Document 2")
+    >>> params = {"datetimeformat": '%d/%m/%Y %H:%M:%S',
+    ... "vocabularyvalue": "No",
+    ... "encoding": "UTF-8",
+    ... "delimiter": ";",
+    ... "stringdelimiter": '"',
+    ... "exportable_content_types": ["News Items", "Document", "Folder"],
+    ... }
+    >>> req = make_request('/'.join(self.folder.getPhysicalPath())+'@@csvreplicata', **params)
+    >>> repl = manager.ReplicationManager(self.folder, req)
+    >>> from Products.csvreplicata import replicator
+    >>> print ''.join([a for a in repl.doExport()])
+    "/plone/Members/test_user_1_";...
+    "parent";"id";"type";"title";"description";"text"
+    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    "";"doc1";"Document";"Document 1";"";""
+    "";"doc2";"Document";"Document 2";"";""
+    <BLANKLINE>
+    >>> items = list(req.response._headers.iteritems());items.sort();pprint(items)
+    [('content-disposition', ['attachment; filename=export.csv']),
+     ('content-length', ['...']),
+     ('content-type', ['text/csv;charset=UTF-8'])]
+
+
+Export as zip when there are files out there and we want them
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Now adding and exporting a file::
+
+    >>> params['exportfiles'] = 'Yes'
+    >>> params["exportable_content_types"].append('File')
+    >>> id=self.folder.invokeFactory('File', id='f1'  , title="File 1")
+    >>> req = make_request('/'.join(self.folder.getPhysicalPath())+'@@csvreplicata', **params)
+    >>> f1 = self.folder.f1
+    >>> f1.getFile().data = 'foo'
+    >>> f1.setFilename('bar')
+    >>> repl = manager.ReplicationManager(self.folder, req)
+    >>> from StringIO import StringIO
+    >>> import zipfile
+    >>> content = StringIO([a for a in repl.doExport()][0])
+    >>> zip = zipfile.ZipFile(content)
+    >>> print zip.read('export.csv')
+    "/plone/Members/test_user_1_";...
+    "parent";"id";"type";"title";"description";"text"
+    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    "";"doc1";"Document";"Document 1";"";""
+    "";"doc2";"Document";"Document 2";"";""
+    "parent";"id";"type";"title";"description";"file"
+    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_file"
+    "";"f1";"File";"File 1";"";"bar"
+    <BLANKLINE>
+    >>> zip.printdir()
+    File Name...
+    bar...
+    export.csv...
+    >>> items = list(req.response._headers.iteritems());items.sort();pprint(items)
+    [('content-disposition', ['attachment; filename=export.zip']),
+     ('content-length', ['...']),
+     ('content-type', ['application/zip'])]
+
+
+The File Stream Iterator
++++++++++++++++++++++++++
+
+This object returns a generator to read our big files!::
+
+    >>> from Products.csvreplicata.browser.manager import FileStreamIterator, EphemeralStreamIterator
+    >>> import tempfile
+    >>> fpath = tempfile.mkstemp('foo')[1]
+    >>> fobj = open(fpath, 'w');fobj.write('foo');fobj.close()
+    >>> len(FileStreamIterator(fpath))
+    3
+
+We can play with chunks to divide rendering into small parts    ::
+
+    >>> [[a for a in FileStreamIterator(fpath, chunk=chunk)] for chunk in [1,2, 3,4]]
+    [['f', 'o', 'o'], ['fo', 'o'], ['foo'], ['foo']]
+
+    >>> os.unlink(fpath)
+
+
+The Ephemeral Stream Iterator
++++++++++++++++++++++++++++++++++
+
+
+This object returns a generator to read our big files but delete them when they are read!::
+
+    >>> from Products.csvreplicata.browser.manager import FileStreamIterator, EphemeralStreamIterator
+    >>> import tempfile
+    >>> fdir = tempfile.mkdtemp(); fdir2 = tempfile.mkdtemp(dir=fdir);fpath = os.path.join(fdir2, 'foo')
+    >>> fobj = open(fpath, 'w');fobj.write('foo');fobj.close()
+
+Files are there, we can ask to not delete parents (default)::
+
+    >>> [os.path.exists(p) for p in fdir,fdir2, fpath]
+    [True, True, True]
+    >>> len(EphemeralStreamIterator(fpath, delete_parent=False, delete_grand_parent=False))
+    3
+    >>> [a for a in EphemeralStreamIterator(fpath, delete_parent=False, delete_grand_parent=False)]
+    ['foo']
+    >>> [os.path.exists(p) for p in fdir,fdir2, fpath]
+    [True, True, False]
+
+We have read it, the file and the parent are deleted::
+
+    >>> fobj = open(fpath, 'w');fobj.write('foo');fobj.close()
+    >>> [a for a in EphemeralStreamIterator(fpath, delete_parent=True, delete_grand_parent=True)]
+    ['foo']
+    >>> [os.path.exists(p) for p in fdir2, fdir, fpath]
+    [False, False, False]
+
+

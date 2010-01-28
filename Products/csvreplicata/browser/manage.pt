@@ -112,6 +112,15 @@
 						    <input type="radio" name="importfiles" value="No" checked />No
 						</div>
 					</div>
+          <div class="field">
+              <div class="widget"
+                tal:define="pfvalue here/portal_csvreplicatatool/getPlainFormat|nothing"> 
+                <label for="is_plain_format">Use plain csv format instead of original</label>
+                <input class="noborder" name="is_plain_format" id="is_plain_format" 
+                  tal:attributes="checked python:pfvalue and 'checked' or ''"
+                  type="checkbox"/>
+              </div>
+            </div>  
 					<div class="field">
 						<div class="widget">
 						    <label for="formElements">Import vocabulary value</label>
@@ -214,6 +223,15 @@
                 			</select>
 						</div>
 					</div>
+           <div class="field">
+              <div class="widget"
+                tal:define="pfvalue here/portal_csvreplicatatool/getPlainFormat|nothing"> 
+                <label for="is_plain_format">Use plain csv format instead of original</label>
+                <input class="noborder" name="is_plain_format" id="is_plain_format" 
+                  tal:attributes="checked python:pfvalue and 'checked' or ''"
+                  type="checkbox"/>
+              </div>
+            </div> 
 
 				    <div class="field">
 						<div class="widget">

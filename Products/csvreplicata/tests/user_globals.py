@@ -24,6 +24,7 @@ All from there will be imported in this namespace
 """
 ################################################################################
 
+import os
 
 # try to load testing product globals
 try: from Products.testing.tests.globals import *
@@ -143,8 +144,9 @@ UNTESTED_WARNING = """
 def format_test_title(title):
     sep = '*' * (len(title)+4)
     return "\n%s\n %s \n%s\n" % (sep, title, sep)
+import re
+from StringIO import StringIO 
+from zope.component import provideAdapter
+from Products.csvreplicata import interfaces 
 
-# load user specific globals
-try: from Products.csvreplicata.tests.user_globals import *
-except: pass
 # vim:set et sts=4 ts=4 tw=80:

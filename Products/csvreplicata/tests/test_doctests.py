@@ -27,7 +27,8 @@ def test_suite():
     setup_site()
     return ts(
         __file__,
-        patterns = ['csv.*txt$'],
+        #patterns = ['(handl|basic).*txt$'],
+        patterns = ['(handl).*txt$'],
         globs=globals(),
         testklass=FunctionalTestCase
     )

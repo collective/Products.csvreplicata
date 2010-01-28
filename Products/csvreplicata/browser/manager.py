@@ -14,6 +14,12 @@ from Products.CMFCore.utils import getToolByName
 from zipfile import ZipFile
 from cStringIO import StringIO
 import os
+import tempfile
+import shutil
+
+
+from zope.interface.interfaces import IInterface
+from ZPublisher.Iterators import IStreamIterator
 
 from Products.csvreplicata.interfaces import Icsvreplicata
 from Products.csvreplicata import config
@@ -30,11 +36,11 @@ class ReplicationManager(BrowserView):
         self.context = context
         self.request = request
 
- 
+
     def kssClassesView(self):
         """
         Yet another plone25 wrapper.
-        """ 
+        """
         if not config.PLONE25:
             return self.context.restrictedTraverse(
                 '@@kss_field_decorator_view'
@@ -72,6 +78,9 @@ class ReplicationManager(BrowserView):
         wf_transition = self.request.get("wf_transition")
         if wf_transition=="None":
             wf_transition = None
+        plain_format = False
+        if self.request.get('is_plain_format', '') == 'on':
+            plain_format = True 
         importfiles = self.request.get("importfiles")
         if importfiles=="Yes":
             zip = ZipFile(file)
@@ -82,19 +91,21 @@ class ReplicationManager(BrowserView):
             zip = None
             csvfile = file
 
-        (count_created, 
-         count_modified, 
-         export_date, 
+        (count_created,
+         count_modified,
+         export_date,
          errors) = replicator.csvimport(
-             csvfile, 
-             encoding = encoding, 
-             delimiter = delimiter, 
-             stringdelimiter = stringdelimiter, 
-             datetimeformat = datetimeformat, 
-             conflict_winner = conflict_winner, 
-             wf_transition = wf_transition, 
-             zip = zip, 
-             vocabularyvalue = vocabularyvalue)
+             csvfile,
+             encoding = encoding,
+             delimiter = delimiter,
+             stringdelimiter = stringdelimiter,
+             datetimeformat = datetimeformat,
+             conflict_winner = conflict_winner,
+             wf_transition = wf_transition,
+             zip = zip,
+             vocabularyvalue = vocabularyvalue,
+             plain_format = plain_format
+         )
         if len(errors)==0:
             self.writeMessageOnPage(["All lines imported, %d object(s) created, %d object(s) modified." % (count_created, count_modified)])
             self.writeMessageOnPage(["This CSV file has been produced on "+str(export_date)+". To avoid inconsistencies, do not import this file anymore. It is preferable to export a new one."])
@@ -124,39 +135,65 @@ class ReplicationManager(BrowserView):
             wf_states = None
         exportfiles = self.request.get("exportfiles")
 
+        csvtool = getToolByName(self.context, "portal_csvreplicatatool")
+        tmp = csvtool.getTempPath()
+        delete_on_exit = False
+        delete_grand_parent = False
+        if not tmp:
+            delete_grand_parent = True
+            tmp = tempfile.mkdtemp()
+        tmppath = tempfile.mkdtemp(dir=tmp)
+
+        zippath = os.path.join(tmppath, 'export.zip')
         if exportfiles=="Yes":
             # initialize zipfile
-            sIO = StringIO()
-            zip = ZipFile(sIO,"w",8)
+            zip = ZipFile(zippath, "w", 8)
         else:
             zip = None
 
-        csv = replicator.csvexport(
-            encoding = encoding, 
-            delimiter = delimiter,
-            stringdelimiter = stringdelimiter, 
-            depth = depth, 
-            datetimeformat = datetimeformat, 
-            wf_states = wf_states, 
-            zip = zip, 
-            vocabularyvalue = vocabularyvalue, 
-            exportable_content_types = exportable_content_types
-        )
+        plain_format = False
+        if self.request.get('is_plain_format', '') == 'on':
+            plain_format = True
 
+        csvpath = os.path.join(tmppath, 'export.csv')
+        csvstream = open(csvpath, 'w')
+        csv = replicator.csvexport(
+            encoding = encoding,
+            delimiter = delimiter,
+            stringdelimiter = stringdelimiter,
+            depth = depth,
+            datetimeformat = datetimeformat,
+            wf_states = wf_states,
+            zip = zip,
+            vocabularyvalue = vocabularyvalue,
+            exportable_content_types = exportable_content_types,
+            stream = csvstream,
+            plain_format = plain_format
+        )
+        csvstream.flush()
+        csvstream.close()
+        streamed = EphemeralStreamIterator(
+            csvpath,
+            delete_parent=True,
+            delete_grand_parent=delete_grand_parent)
         if exportfiles=="Yes":
             self.request.response.setHeader('Content-type','application/zip')
             self.request.response.setHeader('Content-Disposition', "attachment; filename=export.zip")
-
-            zip.writestr("export.csv",csv)
+            zip.write(csvpath, "export.csv")
             zip.close()
-            return sIO.getvalue()
+            streamed.file.close()
+            streamed = EphemeralStreamIterator(
+                zippath,
+                delete_parent=True,
+                delete_grand_parent=delete_grand_parent)
         else:
             if not encoding:
                 encoding = 'UTF-8'
             self.request.response.setHeader('Content-type','text/csv;charset='+encoding)
             self.request.response.setHeader('Content-Disposition', "attachment; filename=export.csv")
-            return csv
 
+        self.request.response.setHeader('Content-Length', str(len(streamed)))
+        return streamed
 
     def writeMessageOnPage(self, messages, ifMsgEmpty = '', error = False):
         """adds portal message
@@ -204,8 +241,6 @@ class ReplicationManager(BrowserView):
                     transitions.append(t.id)
         return transitions
 
-
-
     def getServerImportableFiles(self):
         """
         """
@@ -214,3 +249,68 @@ class ReplicationManager(BrowserView):
         if import_dir_path is not None and import_dir_path!='':
             return os.listdir(import_dir_path)
         return []
+
+
+# badly stolen ideas from dexterity
+# see https://svn.plone.org/svn/plone/plone.dexterity/trunk/plone/dexterity/filerepresentation.py
+
+class FileStreamIterator(object):
+    """Simple stream iterator to allow efficient data streaming.
+    """
+
+    # Stupid workaround for the fact that on Zope < 2.12, we don't have
+    # a real interface
+    if IInterface.providedBy(IStreamIterator):
+        implements(IStreamIterator)
+    else:
+        __implements__ = (IStreamIterator,)
+
+    def __init__(self, path, size=None, chunk=1<<16):
+        """Consume data (a str) into a temporary file and prepare streaming.
+
+        size is the length of the data. If not given, the length of the data
+        string is used.
+
+        chunk is the chunk size for the iterator
+        """
+        self.path = path
+        self.file = open(path)
+        self.file.seek(0)
+        self.size = os.stat(path).st_size
+        self.chunk = chunk
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        data = self.file.read(self.chunk)
+        if not data:
+            self.file.close()
+            raise StopIteration
+        return data
+
+    def __len__(self):
+        return self.size
+
+
+class EphemeralStreamIterator(FileStreamIterator):
+    """File and maybe its parent directory is deleted when readed"""
+
+    def __init__(self, path, size=None, chunk=1<<16, delete_parent = False, delete_grand_parent=False):
+        FileStreamIterator.__init__(self, path, size, chunk)
+        self.delete_parent = delete_parent
+        self.delete_grand_parent = delete_grand_parent
+
+    def next(self):
+        try:
+            return FileStreamIterator.next(self)
+        except:
+            os.unlink(self.path)
+            if self.delete_parent:
+                shutil.rmtree(os.path.dirname(self.path))
+            if self.delete_grand_parent:
+                shutil.rmtree(os.path.dirname(os.path.dirname(self.path)))
+            raise
+
+
+

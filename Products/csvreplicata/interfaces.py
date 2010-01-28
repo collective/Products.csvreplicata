@@ -46,6 +46,7 @@ class Icsvreplicata(Interface):
 
 class  ICSVReplicataObjectsSearcher(Interface):
     """You have some others infos in adapters.py. """
+    prefix = Attribute('preifx to use as title')
 
     """Search for aditionnal objects 
     to export which are not catalogued in
@@ -63,8 +64,9 @@ class  ICSVReplicataExportPlugin(Interface):
     """Be sure to prefix your titles and not have conflicting titles 
     (Otherwise normally, first win)"""
 
-    """ PLEASE INIT THIS IN THE __init__ OF YOUR PLUGIN """
+    """ PLEASE INIT THIS IN THE __init__ OF YOUR PLUGIN, you may have better to inherit the mixin class in .adapters to init thems """
     ids = Attribute('ordonned list of csv ids')
+    prefix = Attribute('prefix to use as title in csv, it must begin with "ReplicataPlugin_"')
 
     def append_ids(row_ids):
         """Add the plugins ids to a list of ids tuple."""

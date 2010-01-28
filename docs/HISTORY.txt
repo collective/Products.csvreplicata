@@ -16,6 +16,14 @@ Changelog
 
 * Fix unicode error with reference fields [kiorky]  
 
+* Add support for temporary export path [kiorky]  
+
+* Add support for flattened CSV Files [kiorky]  
+
+* Add tests, and tests infrastructure [kiorky]  
+
+* Add Stream (Files) Iterators not to overhead the RAM [kiorky]  
+
 1.1 - 2009-10-17
 -----------------
 
