@@ -13,4 +13,11 @@ We have plans to integrate the export/import code with transmogrifier_, [ also_ 
 .. _also: http://pypi.python.org/pypi/plone.app.transmogrifier/
 
 
+Repository: svn_
+
+Trac: trac_
+
+.. _svn: http://svn.plone.org/svn/collective/Products.csvreplicata/trunk/Products.csvreplicata/
+.. _trac: http://dev.plone.org/collective/browser/Products.csvreplicata/trunk/Products.csvreplicata
+
 

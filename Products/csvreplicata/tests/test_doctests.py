@@ -28,7 +28,7 @@ def test_suite():
     return ts(
         __file__,
         #patterns = ['(handl|basic).*txt$'],
-        patterns = ['(handl).*txt$'],
+        patterns = ['.*txt$'],
         globs=globals(),
         testklass=FunctionalTestCase
     )
