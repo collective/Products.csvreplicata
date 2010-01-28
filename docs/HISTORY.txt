@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.3 - 2010-01-27
+------------------
+
+* Fixed missing import of interface.implements in browser.manager [fRiSi]
+
 1.1.2 - 2010-01-27
 ------------------
 
