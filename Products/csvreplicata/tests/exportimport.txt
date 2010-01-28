@@ -11,7 +11,7 @@ here we export folders and documents
     >>> id=self.folder.invokeFactory('Document'      , id='doc2'   , title="Document 2")
     >>> id=self.folder.invokeFactory('News Item'     , id='news1'  , title="news 'super' 3")
     >>> id=self.folder.invokeFactory('Document'      , id='doc4'   , title="Document 4")
-    >>> id=self.folder.invokeFactory('Folder'        , id='sub1'   , title="Séléction")
+    >>> id=self.folder.invokeFactory('Folder'        , id='sub1'   , title="mytest")
     >>> id=self.folder.sub1.invokeFactory('Document' , id='doc11'  , title="Document 1 du dossier 1")
     >>> id=self.folder.sub1.invokeFactory('News Item', id='news21' , title="news 1 du dossier 1")
     >>> id=self.folder.sub1.invokeFactory('Document' , id='doc31'  , title="Document 2 du dossier 1")
@@ -41,7 +41,7 @@ here we export folders and documents
     "";"doc4";"Document";"Document 4";"";""
     "parent";"id";"type";"title";"description"
     "Parent folder";"Identifier";"Content type";"Title";"label_description"
-    "";"sub1";"Folder";"Séléction";""
+    "";"sub1";"Folder";"mytest";""
     "parent";"id";"type";"title";"description";"text"
     "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
     "sub1";"doc11";"Document";"Document 1 du dossier 1";"";""
@@ -69,7 +69,7 @@ This output is not that good to deal with CSV apis, we will try to export it to 
     "/plone/Members/test_user_1_";...;"";"doc2";"Document";"Document 2";"";""
     "/plone/Members/test_user_1_";...;"";"news1";"News Item";"";"";""
     "/plone/Members/test_user_1_";...;"";"doc4";"Document";"Document 4";"";""
-    "/plone/Members/test_user_1_";...;"";"sub1";"Folder";"Séléction";"";""
+    "/plone/Members/test_user_1_";...;"";"sub1";"Folder";"mytest";"";""
     "/plone/Members/test_user_1_";...;"sub1";"doc11";"Document";"Document 1 du dossier 1";"";""
     "/plone/Members/test_user_1_";...;"sub1";"news21";"News Item";"";"";""
     "/plone/Members/test_user_1_";...;"sub1";"doc31";"Document";"Document 2 du dossier 1";"";""
@@ -145,13 +145,13 @@ As we cant predict order of the keys, doing some magic to order them before test
       ('text', ''),
       ('title', 'Document 4'),
       ('type', 'Document')],
-     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'S\xc3\xa9l\xc3\xa9ction'),
+     [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'mytest'),
       ('description', ''),
       ('id', 'sub1'),
       ('parent', ''),
       ('startpoint', '/plone/Members/test_user_1_'),
       ('text', ''),
-      ('title', 'S\xc3\xa9l\xc3\xa9ction'),
+      ('title', 'mytest'),
       ('type', 'Folder')],
      [('ReplicataPlugin_Products_csvreplicata_tests_test_doctests_CustomExporter_title', 'Document 1 du dossier 1'),
       ('description', ''),
@@ -199,7 +199,7 @@ Import in CSVReplicata plain format, an entry per line without contextual type h
     ... "/plone/Members/test_user_1_";20090101010101;"";"doc2";"Document";"Document 2";"";"Document 2";""
     ... "/plone/Members/test_user_1_";20090101010101;"";"news1";"News Item";"";"";"news 'super' 3";""
     ... "/plone/Members/test_user_1_";20090101010101;"";"doc4";"Document";"Document 4";"";"Document 4";""
-    ... "/plone/Members/test_user_1_";20090101010101;"";"sub1";"Folder";"Séléction";"";"Séléction";""
+    ... "/plone/Members/test_user_1_";20090101010101;"";"sub1";"Folder";"mytest";"";"mytest";""
     ... "/plone/Members/test_user_1_";20090101010101;"sub1";"doc11";"Document";"Document 1 du dossier 1";"";"Document 1 du dossier 1";""
     ... "/plone/Members/test_user_1_";20090101010101;"sub1";"news21";"News Item";"";"";"news 1 du dossier 1";""
     ... "/plone/Members/test_user_1_";20090101010101;"sub1";"doc31";"Document";"Document 2 du dossier 1";"";"Document 2 du dossier 1";""
@@ -228,7 +228,7 @@ Import in CSVReplicata orignal format, an entry per line with contextual type hi
     ... "";"doc4";"Document";"Document 4";"";""
     ... "parent";"id";"type";"title";"description"
     ... "Parent folder";"Identifier";"Content type";"Title";"label_description"
-    ... "";"sub1";"Folder";"Séléction";""
+    ... "";"sub1";"Folder";"mytest";""
     ... "parent";"id";"type";"title";"description";"text"
     ... "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
     ... "sub1";"doc11";"Document";"Document 1 du dossier 1";"";""
