@@ -19,6 +19,7 @@ import shutil
 
 
 from zope.interface.interfaces import IInterface
+from zope.interface.declarations import implements
 from ZPublisher.Iterators import IStreamIterator
 
 from Products.csvreplicata.interfaces import Icsvreplicata

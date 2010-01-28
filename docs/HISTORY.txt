@@ -4,6 +4,8 @@ Changelog
 1.1.1 - Unreleased
 ------------------
 
+* fixed missing import of interface.implements in browser.manager [fRiSi]
+
 * remove five:traversable directive (deprecated in plone3) [toutpt]
 
 * Add default config for importcsvStep [toutpt]
