@@ -213,8 +213,9 @@ class Replicator(object):
 
             # read csv
             reader = csv.reader(csvfile, delimiter=delimiter,
-                                quotechar=stringdelimiter,
-                                quoting=csv.QUOTE_NONNUMERIC)
+                                quotechar=stringdelimiter)
+#                                ,
+#                                quoting=csv.QUOTE_NONNUMERIC)
             line = 1
             # parse header
             head = reader.next()
