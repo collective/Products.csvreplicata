@@ -44,7 +44,15 @@ class CSVFile(CSVdefault):
                  "Products.Archetypes.Field.ImageField"):
 
                     f = str(f.data)
-                zip.writestr(os.path.join(parent_path, filename), f)
+                full_path = os.path.join(parent_path, filename)
+                try:
+                    full_path = full_path.encode('ascii')
+                except:
+                    try:
+                        full_path = full_path.decode('utf-8').encode('ascii')
+                    except:
+                        pass
+                zip.writestr(full_path, f)
             return filename
 
     def set(self, obj, field, value, context=None, zip=None, parent_path = ''):
