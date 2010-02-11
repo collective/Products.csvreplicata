@@ -142,6 +142,7 @@ def importcsvStep(context):
     Config.set("settings", "conflict_winner","SERVER")
     Config.set("settings", "global_path","")
     Config.set("settings", "ignore_content_errors","false")
+    Config.set("settings", "plain_format","false")
     Config.read(replicatacfg.name)
     options = Config.items('replicable_types', raw=True)
     replicable_types = {}
@@ -178,7 +179,13 @@ def importcsvStep(context):
     if signore_content_errors:
         if signore_content_errors == 'true':
             ignore_content_errors = True
-    kwargs['ignore_content_errors'] = ignore_content_errors 
+    kwargs['ignore_content_errors'] = ignore_content_errors
+
+    plain_format = Config.get('settings', 'plain_format')
+
+    kwargs['plain_format'] = False
+    if plain_format == 'true':
+        kwargs['plain_format'] = True
 
     if replicatazip:
         from zipfile import ZipFile

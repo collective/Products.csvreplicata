@@ -264,7 +264,8 @@ class Replicator(object):
                                         wf_transition,
                                         zip,
                                         encoding=encoding,
-                                        ignore_content_errors=ignore_content_errors
+                                        ignore_content_errors=ignore_content_errors,
+                                        plain_format=plain_format
                                     )
                             if is_new:
                                 count_created = count_created + 1
@@ -295,7 +296,7 @@ class Replicator(object):
                         except Exception, e:
 #                            errors.append("Error in line "+str(line) + \
 #                                          ": %s" % (e))
-                            raise Exception, "Error in csv file line "+str(line) + ": %s" % (e)
+                            raise Exception, "Error in csv file line "+str(line) + ": %s \n%s" % (e, row)
                 else:
                     label_line = False
 
@@ -312,7 +313,8 @@ class Replicator(object):
                      wf_transition,
                      zip,
                      encoding='utf-8',
-                     ignore_content_errors=False):
+                     ignore_content_errors=False,
+                     plain_format=False):
         """
         """
         modified = False
@@ -353,14 +355,17 @@ class Replicator(object):
         # update object
         csvtool = getToolByName(self.context, "portal_csvreplicatatool")
         handlers = csvtool.getHandlers()
-        i = 3
+        # skip parent, id, title
+        i = 3 - 1
         for f in specific_fields:
+            i += 1
             if f is not None and f != "":
                 field, type, h = None, None, None
                 try:
                     field = obj.Schema().getField(f)
                     if field is None and ignore_content_errors:
-                        logger.error('field %s is None'%f)
+                        if not plain_format:
+                            logger.error('field %s is None'%f)
                         continue
                     type = field.getType()
                     h = handlers.get(type, handlers['default_handler'])
@@ -427,7 +432,6 @@ class Replicator(object):
                     else:
                         raise
 
-            i = i+1
 
         # call events
         if is_new_object:

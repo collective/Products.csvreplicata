@@ -1,4 +1,4 @@
-Changelog
+hnelog
 =========
 
 
@@ -6,6 +6,7 @@ Changelog
 -------------------
 
 * fix some encoding issues with file handler [kiorky]
+* better plain format import [kiorky]
 
 1.1.3 - 2010-01-27
 ------------------
