@@ -1,8 +1,10 @@
 hnelog
 =========
 
+1.1.5 - Unreleased
+-------------------
 
-1.1.4 - Unreleased
+1.1.4 - 2010-03-05
 -------------------
 
 * fix some encoding issues with file handler [kiorky]
