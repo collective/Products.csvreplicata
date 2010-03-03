@@ -195,7 +195,14 @@ class CSVLines(CSVdefault):
             value = []
         else:
             value = value.split('\n')
-        self.store(field, obj, value)
+        try:
+            self.store(field, obj, value)
+        except Exception, e: 
+            if field == 'subject':
+                obj.setSubject(value)
+            else:
+                raise
+
         
 class CSVText(CSVdefault):
     """
