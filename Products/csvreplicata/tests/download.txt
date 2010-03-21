@@ -27,7 +27,7 @@ here we export folders and documents ::
     >>> print ''.join([a for a in repl.doExport()])
     "/plone/Members/test_user_1_";...
     "parent";"id";"type";"title";"description";"text"
-    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    "Parent folder";"Identifier";"Content type";"Title";"label_...";"label_body_text"
     "";"doc1";"Document";"Document 1";"";""
     "";"doc2";"Document";"Document 2";"";""
     <BLANKLINE>
@@ -57,11 +57,11 @@ Now adding and exporting a file::
     >>> print zip.read('export.csv')
     "/plone/Members/test_user_1_";...
     "parent";"id";"type";"title";"description";"text"
-    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_body_text"
+    "Parent folder";"Identifier";"Content type";"Title";"label_...";"label_body_text"
     "";"doc1";"Document";"Document 1";"";""
     "";"doc2";"Document";"Document 2";"";""
     "parent";"id";"type";"title";"description";"file"
-    "Parent folder";"Identifier";"Content type";"Title";"label_description";"label_file"
+    "Parent folder";"Identifier";"Content type";"Title";"label_...";"label_file"
     "";"f1";"File";"File 1";"";"bar"
     <BLANKLINE>
     >>> zip.printdir()

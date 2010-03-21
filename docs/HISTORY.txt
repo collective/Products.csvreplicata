@@ -1,8 +1,9 @@
-hnelog
-=========
+Changelog
+===========
 
 1.1.5 - Unreleased
 -------------------
+* Fix unittest for plone4 msgid changes [kiorky]
 
 1.1.4 - 2010-03-05
 -------------------
