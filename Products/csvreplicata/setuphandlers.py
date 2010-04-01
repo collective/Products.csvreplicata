@@ -115,6 +115,9 @@ def importcsvStep(context):
         conflict_winner:SERVER
 
     """
+    if not 'openDataFile' in dir(context):
+        return
+
     replicatacfg = context.openDataFile('replicata.cfg')
     replicatacsv = context.openDataFile('replicata.csv')
     replicatazip = context.openDataFile('replicata.zip')
