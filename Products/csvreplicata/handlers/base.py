@@ -211,7 +211,7 @@ class CSVText(CSVdefault):
     def get(self, obj, field, context=None):
         """
         """
-        v = obj.Schema().getField(field).get(obj, mimetype="text/plain")
+        v = obj.Schema().getField(field).getRaw(obj)
         return v
     
     def set(self, obj, field, value, context=None):
