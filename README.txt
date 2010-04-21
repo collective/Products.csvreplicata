@@ -20,7 +20,7 @@ Trac: trac_
 .. _svn: http://svn.plone.org/svn/collective/Products.csvreplicata/trunk/Products.csvreplicata/
 .. _trac: http://dev.plone.org/collective/browser/Products.csvreplicata/trunk/Products.csvreplicata
 
-A Makina Corpus AS add-on
+A Makina Corpus add-on
 -------------------------
 
 http://www.makina-corpus.com & http://makina-corpus.org
