@@ -12,9 +12,6 @@
  <object name="csvreplicata_images"
          meta_type="Filesystem Directory View"
          directory="csvreplicata/skins/csvreplicata_images"/>
- <object name="csvreplicata_styles"
-         meta_type="Filesystem Directory View"
-         directory="csvreplicata/skins/csvreplicata_styles"/>
  
  <skin-path name="*">
   <layer insert-after="custom" 
