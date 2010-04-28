@@ -15,6 +15,7 @@ import logging
 
 from zope import interface
 
+from Products.CMFPlone.utils import normalizeString
 from Products.csvreplicata.exceptions import *
 from Products.csvreplicata.interfaces import ICSVFile
 
@@ -34,7 +35,10 @@ class CSVFile(CSVdefault):
         if not f :
             return ''
         else:
+            # zip module encode filename with latin1 format !
+            # we provide a normalize string to avoid encoding zipe filenames problems
             filename = f.filename
+            zip_filename = normalizeString(filename, encoding='utf-8')
             if zip is not None:
                 #logger.error(obj.Schema().getField(field).getType())
                 if obj.Schema().getField(field).getType() in \
@@ -43,16 +47,10 @@ class CSVFile(CSVdefault):
                  'Products.AttachmentField.AttachmentField.AttachmentField',
                  "Products.Archetypes.Field.ImageField"):
 
-                    f = str(f.data)
-                full_path = os.path.join(parent_path, filename)
-                try:
-                    full_path = full_path.encode('ascii')
-                except:
-                    try:
-                        full_path = full_path.decode('utf-8').encode('ascii')
-                    except:
-                        pass
-                zip.writestr(full_path, f)
+                    fdata = str(f.data)
+
+                full_path = os.path.join(parent_path, zip_filename)
+                zip.writestr(full_path, fdata)
             return filename
 
     def set(self, obj, field, value, context=None, zip=None, parent_path = ''):
@@ -63,11 +61,15 @@ class CSVFile(CSVdefault):
         else:
             if obj.Schema().getField(field).writeable(obj):
                 try:
-                    file = zip.read(os.path.join(parent_path, value))
+                    # filename in zip is different from value
+                    # filename == normalizeString(value,encoding='utf-8')
+                    zip_filename = normalizeString(value, encoding='utf-8')
+                    filestream = zip.read(os.path.join(parent_path, zip_filename))
                 except KeyError, e:
-                    raise csvreplicataMissingFileInArchive, "%s not found in zip file" % (value)
-                obj.Schema().getField(field).set(obj, file)
-                obj.Schema().getField(field).get(obj).setFilename(value)
+                    raise csvreplicataMissingFileInArchive, "%s not found in zip file" % (zip_filename)
+
+                obj.Schema().getField(field).set(obj, filestream)
+                obj.Schema().getField(field).get(obj).setFilename(value.encode('utf-8'))
             else:
                 raise csvreplicataPermissionException, \
                 "Insufficient privileges to modify this object and/or field"
