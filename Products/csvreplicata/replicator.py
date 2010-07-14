@@ -35,7 +35,7 @@ else:
 
 from interfaces import Icsvreplicata
 from interfaces import ICSVReplicataObjectsSearcher
-from interfaces import ICSVReplicataExportPlugin
+from interfaces import ICSVReplicataExportImportPlugin
 #from config import getHandlers, default_handler
 
 from Products.csvreplicata import getPortalTypes
@@ -556,7 +556,7 @@ class Replicator(object):
         labelsmapping = {}
         for index, obj in enumerate(exportable_objects):
             # search plugins that can add cells to our objects
-            plugins = list(getAdapters([self, obj], ICSVReplicataExportPlugin))
+            plugins = list(getAdapters([self, obj], ICSVReplicataExportImportPlugin))
             type_info = str(obj.getTypeInfo().id)
             if not type_info in types:
                 # get type fields
@@ -597,7 +597,7 @@ class Replicator(object):
         for index, obj in enumerate(exportable_objects):
             if obj == self.context : continue
             # search plugins that can add cells to our objects
-            plugins = list(getAdapters([self, obj], ICSVReplicataExportPlugin))
+            plugins = list(getAdapters([self, obj], ICSVReplicataExportImportPlugin))
             type_info = str(obj.getTypeInfo().id)
             # get type fields
             currentFieldsAndLabels = self.getTypeFields(type_info)
@@ -669,7 +669,7 @@ class Replicator(object):
         for index, obj in enumerate(exportable_objects):
             if obj == self.context : continue
             # search plugins that can add cells to our objects
-            plugins = list(getAdapters([self, obj], ICSVReplicataExportPlugin))
+            plugins = list(getAdapters([self, obj], ICSVReplicataExportImportPlugin))
             type_info = str(obj.getTypeInfo().id)
             if not(type_info == currenttype):
                 currenttype = type_info

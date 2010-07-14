@@ -49,7 +49,7 @@ class CSVReplicataObjectSearcherAbstract(CSVReplicataPluginAbstract):
         """."""
         raise Exception('Not implemented.')
 
-class CSVReplicataExportPluginAbstract(CSVReplicataPluginAbstract):
+class CSVReplicataExportImportPluginAbstract(CSVReplicataPluginAbstract):
     """."""
 
     def __init__(self, replicator, context):
@@ -72,6 +72,10 @@ class CSVReplicataExportPluginAbstract(CSVReplicataPluginAbstract):
     def set_values(self, row, row_ids):
         """."""
         raise Exception('Not implemented.', prefix='')
+# BBB: COMPATIBILITY
+CSVReplicataExportPluginAbstract = CSVReplicataExportImportPluginAbstract
+
+
 
 # example plugins for searching/exporting comments on plone2.5
 
@@ -86,7 +90,7 @@ class CSVReplicataExportPluginAbstract(CSVReplicataPluginAbstract):
   <adapter
       name="comments_exporter"
       factory=".adapters.CommentsExporter"
-      provides="Products.csvreplicata.interfaces.ICSVReplicataExportPlugin"
+      provides="Products.csvreplicata.interfaces.ICSVReplicataExportImportPlugin"
       for="Products.csvreplicata.interfaces.Icsvreplicata zope.interface.Interface"
     /> 
 
@@ -107,7 +111,7 @@ class CSVReplicataExportPluginAbstract(CSVReplicataPluginAbstract):
 #
 #from Products.CMFCore.utils import getToolByName
 #from Products.csvreplicata.adapters import CSVReplicataObjectSearcherAbstract
-#from Products.csvreplicata.adapters import CSVReplicataExportPluginAbstract
+#from Products.csvreplicata.adapters import CSVReplicataExportImportPluginAbstract
 #from Products.csvreplicata.adapters import CSVReplicataPluginAbstract 
 
 #def get_dict_csv_mapping(dictionnary,

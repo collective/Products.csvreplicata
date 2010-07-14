@@ -55,7 +55,7 @@ class  ICSVReplicataObjectsSearcher(Interface):
     def getObjects():
         """ Get a list of objects to export"""
 
-class  ICSVReplicataExportPlugin(Interface):
+class  ICSVReplicataExportImportPlugin(Interface):
     """You have some others infos in adapters.py"""
 
     """Export aditionnal fields/values pairs  
@@ -96,3 +96,5 @@ class  ICSVReplicataExportPlugin(Interface):
     def set_values(row, row_ids):
         """Set contextual value in a row matching the previous ids order.."""
 
+# BBB: compatibility
+ICSVReplicataExportPlugin = ICSVReplicataExportImportPlugin

@@ -79,9 +79,9 @@ Redo the export but with a plugin that find the title on the object.
 ::
 
     >>> from Products.csvreplicata import adapters
-    >>> class CustomExporter(adapters.CSVReplicataExportPluginAbstract):
+    >>> class CustomExporter(adapters.CSVReplicataExportImportPluginAbstract):
     ...    def __init__(self, *args, **kwargs):
-    ...        adapters.CSVReplicataExportPluginAbstract.__init__(self, *args, **kwargs)
+    ...        adapters.CSVReplicataExportImportPluginAbstract.__init__(self, *args, **kwargs)
     ...        self.ids.append('title')
     ...    def fill_values(self, row, row_ids):
     ...        """."""
@@ -94,7 +94,7 @@ Redo the export but with a plugin that find the title on the object.
     ...        """."""
     ...        print "plugin.setValue called with %s <-> %s" % (row, row_ids)
     ...
-    >>> provideAdapter(CustomExporter, (interfaces.Icsvreplicata, zope.interface.Interface), interfaces.ICSVReplicataExportPlugin, name ='fooplugin' )
+    >>> provideAdapter(CustomExporter, (interfaces.Icsvreplicata, zope.interface.Interface), interfaces.ICSVReplicataExportImportPlugin, name ='fooplugin' )
     >>> from csv import DictReader
     >>> content = Icsvreplicata(self.folder).csvexport(exportable_content_types=['Document', 'Folder', 'News Item'], depth=None).getvalue()
     >>> items = [item for item in DictReader(StringIO(content), delimiter=";", quotechar='"')]

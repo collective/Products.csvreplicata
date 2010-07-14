@@ -40,8 +40,8 @@
       interface=".interfaces.ICSVReplicataObjectsSearcher"
     />
   <five:implements
-      class="Products.csvreplicata.adapters.CSVReplicataExportPluginAbstract"
-      interface=".interfaces.ICSVReplicataExportPlugin"
+      class="Products.csvreplicata.adapters.CSVReplicataExportImportPluginAbstract"
+      interface=".interfaces.ICSVReplicataExportImportPlugin"
     />
   <!-- ##/code-section configure.zcml -->
 

@@ -1,0 +1,15 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser"
+           xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+           xmlns:five="http://namespaces.zope.org/five">
+
+
+  <adapter
+      name="workflow_exportimporter"
+      factory=".exportimport_plugins.WorkflowExportImporter"
+      provides="Products.csvreplicata.interfaces.ICSVReplicataExportImportPlugin"
+      for="Products.csvreplicata.interfaces.Icsvreplicata zope.interface.Interface"
+    /> 
+
+
+</configure>
