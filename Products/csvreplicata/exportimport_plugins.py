@@ -5,7 +5,7 @@ class WorkflowExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
 
     def __init__(self, replicator, context):
         adapters.CSVReplicataPluginAbstract.__init__(self, replicator, context)
-        self.ids = ['wf_state']
+        self.ids = ['wf_chain', 'wf_state',]
         self._datetimeformat = None
 
     def append_ids(self, row_ids):
@@ -19,10 +19,12 @@ class WorkflowExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
     def fill_values(self, row, row_ids):
         """."""
         wf_tool = getToolByName(self.context, 'portal_workflow')
-        chain = wf_tool.getWorkflowsFor(self.context)
-        if len(chain)>0:
-           st = wf_tool.getStatusOf(chain[0].id, self.context)
-           row[0] = st['review_state']
+        chains = wf_tool.getWorkflowsFor(self.context)
+        if len(chains)>0:
+           chain = chains[0]
+           st = wf_tool.getStatusOf(chain.id, self.context)
+           row[1] = st['review_state']
+           row[0] = chain.id
 
     def set_values(self, row, row_ids):
         """."""
