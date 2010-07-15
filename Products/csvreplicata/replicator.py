@@ -114,7 +114,6 @@ def strcsv_to_datetime(export_date_str):
                            int(export_date_str[8:10]),
                            int(export_date_str[10:12]),
                            int(export_date_str[12:14]))
- 
 
 class Replicator(object):
     """ a folder able to import/export its content as CSV
@@ -332,7 +331,6 @@ class Replicator(object):
                 raise csvreplicataNonExistentContainer, \
                 "Non existent container %s " % parent_path
 
-
         obj = getattr(container.aq_explicit, id, None)
         if obj is None:
             # object does not exist, let's create it
@@ -442,13 +440,19 @@ class Replicator(object):
             try:
                 wftool = getToolByName(self.context, 'portal_workflow')
                 wftool.doActionFor( obj, wf_transition)
-            except Exception:
-               pass
+            except Exception, e:
+                pass
         elif modified:
             event.notify(ObjectEditedEvent(obj))
             obj.at_post_edit_script()
             obj.reindexObject()
 
+        # search plugins and apply them to our objects
+        if len(row) > 3:
+             plugins = list(getAdapters([self, obj], ICSVReplicataExportImportPlugin))
+             for pluginid, plugin in plugins:
+                 plugin.set_values(row[3:], specific_fields)
+    
         return (is_new_object, modified)
 
     def csvexport(self,

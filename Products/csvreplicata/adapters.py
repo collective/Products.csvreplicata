@@ -30,7 +30,6 @@
 
 __docformat__ = 'restructuredtext en'
 
-
 class CSVReplicataPluginAbstract(object):
     """."""
 
@@ -57,10 +56,17 @@ class CSVReplicataExportImportPluginAbstract(CSVReplicataPluginAbstract):
         self.ids = []
         self._datetimeformat = None
 
+    def compute_id(self, id):
+         return '%s%s' % (self.prefix, id)
+    
+    def computedid_to_id(self, cid):
+        if cid.startswith(self.prefix):
+            return cid.replace(self.prefix, '', 1)
+
     def append_ids(self, row_ids):
         """."""
         row_ids.extend(
-            ['%s%s' % (self.prefix, i)
+            [self.compute_id(i)
              for i in self.ids 
              if not i in row_ids]
         )
@@ -71,7 +77,15 @@ class CSVReplicataExportImportPluginAbstract(CSVReplicataPluginAbstract):
 
     def set_values(self, row, row_ids):
         """."""
+        for id in row_ids:
+            cid = self.computedid_to_id(id)
+            if (bool(cid) and (cid in self.ids)):
+                self.set_value(cid, row[row_ids.index(id)], row, row_ids)
+
+    def set_value(self, id, value):
+        """."""
         raise Exception('Not implemented.', prefix='')
+
 # BBB: COMPATIBILITY
 CSVReplicataExportPluginAbstract = CSVReplicataExportImportPluginAbstract
 

@@ -1,4 +1,5 @@
 from Products.csvreplicata import adapters
+from DateTime.DateTime import DateTime
 from Products.CMFCore.utils import getToolByName
 
 class WorkflowExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
@@ -26,6 +27,27 @@ class WorkflowExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
            row[1] = st['review_state']
            row[0] = chain.id
 
-    def set_values(self, row, row_ids):
+    def set_value(self, id, value, row, row_ids):
         """."""
-        raise Exception('Not implemented.', prefix='')
+        if id == 'wf_chain':
+            state = row[row_ids.index(self.compute_id('wf_state'))]
+            wf_tool = getToolByName(self.context, 'portal_workflow')
+            wchain = wf_tool.get(value, None)
+            if wchain:
+                chains = wf_tool.getWorkflowsFor(self.context)
+                if len(chains)>0:
+                    st = wf_tool.getStatusOf(chains[0].id, self.context)
+                    rst = st['review_state']
+                    if rst != state and (wchain in chains):
+                        wf_tool.setStatusOf(
+                            wchain.id,
+                            self.context,
+                            {'action': None, 
+                            'review_state': state,
+                            'comments': 'State etted by csvreplicata', 
+                            'actor': 'admin', 
+                            'time': DateTime(),
+                            }
+                        )
+                        wchain.updateRoleMappingsFor(self.context)
+                        self.context.reindexObject()
