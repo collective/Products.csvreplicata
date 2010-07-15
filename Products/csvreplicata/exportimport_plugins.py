@@ -44,7 +44,7 @@ class WorkflowExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
                             self.context,
                             {'action': None, 
                             'review_state': state,
-                            'comments': 'State etted by csvreplicata', 
+                            'comments': 'State setted by csvreplicata', 
                             'actor': 'admin', 
                             'time': DateTime(),
                             }
