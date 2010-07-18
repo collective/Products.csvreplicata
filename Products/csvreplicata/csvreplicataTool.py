@@ -295,6 +295,12 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     def getHandlers(self):
         """
         """
+        if not getattr(self, 'handlers', None): 
+            setattr(self, 'handlers', {})
+        # migrate persistent mapping with possible new values
+        for h in HANDLERS:
+            if not h in self.handlers:
+                self.handlers[h] = HANDLERS[h]
         return self.handlers
 
     def setHandler(self, key, value):

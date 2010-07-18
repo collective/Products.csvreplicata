@@ -45,6 +45,9 @@ class CSVFile(CSVdefault):
                 ("plone.app.blob.subtypes.file.ExtensionBlobField",
                  "Products.Archetypes.Field.FileField",
                  'Products.AttachmentField.AttachmentField.AttachmentField',
+                 "plone.app.blob.subtypes.image.ExtensionBlobField",
+                 "plone.app.blob.subtypes.file.ExtensionBlobField",
+                 "plone.app.blob.subtypes.blob.ExtensionBlobField",
                  "Products.Archetypes.Field.ImageField"):
 
                     fdata = str(f.data)

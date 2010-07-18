@@ -7,6 +7,8 @@ Changelog
 * Implement import plugins [kiorky]
 * Add a meta.zcml with some basic plugins, like for wf state export/import [kiorky]
 * Rename objects for consistency purpose [kiorky]
+* Fix some Acquisition bugs [kiorky]
+* Support blobstorage [kiorky]
 
 1.1.4 - 2010-03-05
 -------------------
