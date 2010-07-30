@@ -1,7 +1,11 @@
 Changelog
 ===========
 
-1.1.5 - Unreleased
+1.1.6 - 2010-07-30
+------------------
+* Fix importObject (obj referenced before assignment) [danjacka]
+
+1.1.5 - 2010-07-29
 -------------------
 * Fix unittest for plone4 msgid changes [kiorky]
 * Implement import plugins [kiorky]
