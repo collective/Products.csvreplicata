@@ -331,7 +331,7 @@ class Replicator(object):
                 raise csvreplicataNonExistentContainer, \
                 "Non existent container %s " % parent_path
 
-        # acuqisition nightmare, just use base zope ids
+        # acquisition nightmare, just use base zope ids
         oids = container.objectIds()
         if not id in oids:
             # object does not exist, let's create it
@@ -341,7 +341,10 @@ class Replicator(object):
             container.invokeFactory(portal_type, id=id)
             is_new_object = True
             protected = False
-        else:
+
+        obj = getattr(container.aq_explicit, id, None)
+
+        if not is_new_object:
             # object exists, so check conflicts
             lastmodified = obj.modified()
             if lastmodified > export_date:
@@ -349,7 +352,6 @@ class Replicator(object):
                     protected = False
             else:
                 protected = False
-        obj = getattr(container.aq_explicit, id, None)
 
         # update object
         csvtool = getToolByName(self.context, "portal_csvreplicatatool")
