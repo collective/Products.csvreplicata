@@ -30,16 +30,19 @@
 
 __docformat__ = 'restructuredtext en'
 
+# see ./exportimport_plugins.py and ./meta.zcml to know how to implenent plugins
+
 class CSVReplicataPluginAbstract(object):
     """."""
 
     def __init__(self, replicator, context):
         self.replicator = replicator
         self.context = context
-        self.prefix = 'ReplicataPlugin_%s_%s_' % (
-            self.__module__.replace('.', '_'),
-            self.__class__.__name__
-        )
+        if not getattr(self, 'prefix', False):
+            self.prefix = 'ReplicataPlugin_%s_%s_' % (
+                self.__module__.replace('.', '_'),
+                self.__class__.__name__
+            )
 
 class CSVReplicataObjectSearcherAbstract(CSVReplicataPluginAbstract):
     """Just to be marked in zcml."""
@@ -58,7 +61,7 @@ class CSVReplicataExportImportPluginAbstract(CSVReplicataPluginAbstract):
 
     def compute_id(self, id):
          return '%s%s' % (self.prefix, id)
-    
+
     def computedid_to_id(self, cid):
         if cid.startswith(self.prefix):
             return cid.replace(self.prefix, '', 1)
@@ -66,8 +69,8 @@ class CSVReplicataExportImportPluginAbstract(CSVReplicataPluginAbstract):
     def append_ids(self, row_ids):
         """."""
         row_ids.extend(
-            [self.compute_id(i)
-             for i in self.ids 
+            ['%s%s' % (self.prefix, i)
+             for i in self.ids
              if not i in row_ids]
         )
 
@@ -89,101 +92,5 @@ class CSVReplicataExportImportPluginAbstract(CSVReplicataPluginAbstract):
 # BBB: COMPATIBILITY
 CSVReplicataExportPluginAbstract = CSVReplicataExportImportPluginAbstract
 
-
-
-# example plugins for searching/exporting comments on plone2.5
-
-# THE ZCML REGISTRATION WILL LOOK LIKE:
-"""
-  <adapter
-      name="comments_searcher"
-      factory=".adapters.CommentsObjectsSearcher"
-      provides="Products.csvreplicata.interfaces.ICSVReplicataObjectsSearcher"
-      for="Products.csvreplicata.interfaces.Icsvreplicata Products.CMFCore.interfaces._tools.IDiscussionTool"
-    />    
-  <adapter
-      name="comments_exporter"
-      factory=".adapters.CommentsExporter"
-      provides="Products.csvreplicata.interfaces.ICSVReplicataExportImportPlugin"
-      for="Products.csvreplicata.interfaces.Icsvreplicata zope.interface.Interface"
-    /> 
-
-    After, mark your portal_discussion with "ICSVReplicable" and export it.
-"""
-
-
-# THE CODE WILL LOOK LIKE
-
-#import logging
-#from datetime import datetime
-#from DateTime import DateTime
-#
-#from zope.app.annotation.interfaces import IAnnotations
-#from zope.component import getMultiAdapter
-#from persistent.dict import PersistentDict
-#from persistent.list import PersistentList
-#
-#from Products.CMFCore.utils import getToolByName
-#from Products.csvreplicata.adapters import CSVReplicataObjectSearcherAbstract
-#from Products.csvreplicata.adapters import CSVReplicataExportImportPluginAbstract
-#from Products.csvreplicata.adapters import CSVReplicataPluginAbstract 
-
-#def get_dict_csv_mapping(dictionnary,
-#                         results = None,
-#                         export_key = 'myexportkey',
-#                         replicator = None
-#                        ):
-#    if isinstance(dictionnary, PersistentDict):
-#        dictionnary = dict(dictionnary)
-#    if not results:
-#        results = {}
-#    for key in dictionnary:
-#        if isinstance(dictionnary[key], dict) or isinstance(dictionnary[key], PersistentDict):
-#            get_dict_csv_mapping(dict(dictionnary[key]), results, '%s_%s' % (export_key, key), replicator)
-#        else:
-#            value = dictionnary[key]
-#            #print '-->%s  %s <-> (%s, %s)' % (dict(dictionnary), key, value.__class__, value)
-#            if (
-#                isinstance(value, list) 
-#                or isinstance(value, PersistentList)
-#                or isinstance(value, tuple)
-#            ):
-#                value = ','.join(['%s' % a for a in value])
-#            if isinstance(value, DateTime) or isinstance(value, datetime):
-#                df = '%d/%m/%Y %H:%M:%S'
-#                if replicator:
-#                    getattr(replicator, 'datetimeformat', df)
-#                value = value.strftime(df)
-#            results['%s_%s' % (export_key, key)] = value
-#    return results
-#
-#class CommentsObjectsSearcher(CSVReplicataObjectSearcherAbstract):
-#
-#    def getObjects(self):
-#        logger = logging.getLogger('Products.csvreplicata.adapters.CommentsObjectsSearcher')
-#        objs = []
-#        c = getToolByName(self.context, 'portal_catalog')
-#        bcomments = c.searchResults(**{
-#            'meta_type': ['Discussion Item'],
-#            'sort_on': 'in_reply_to',
-#        })
-#        lbcomments = len(bcomments)
-#        logger.info('%s comments to export' % lbcomments)
-#        SLICE = 1000
-#        for i in range((lbcomments / SLICE) + 1):
-#            lowerBound = SLICE * i
-#            upperBound = SLICE * (i+1)
-#            if upperBound > lbcomments:
-#                upperBound = lbcomments
-#            logger.info('Loading %s to %s comments.' % (lowerBound, upperBound))
-#            #lowerBound, upperBound = 0, 3
-#            scomments = [b.getObject() 
-#                         for b in bcomments[lowerBound : upperBound]]
-#            objs.extend(scomments)
-#        logger.info('All comments loaded.')
-#        return objs
-#
-#        pass 
-                 
 
 # vim:set et sts=4 ts=4 tw=80:

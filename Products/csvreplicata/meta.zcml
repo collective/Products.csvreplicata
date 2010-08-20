@@ -1,15 +1,22 @@
 <configure xmlns="http://namespaces.zope.org/zope"
-           xmlns:browser="http://namespaces.zope.org/browser"
-           xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
-           xmlns:five="http://namespaces.zope.org/five">
-
-
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:five="http://namespaces.zope.org/five">
   <adapter
       name="workflow_exportimporter"
       factory=".exportimport_plugins.WorkflowExportImporter"
       provides="Products.csvreplicata.interfaces.ICSVReplicataExportImportPlugin"
       for="Products.csvreplicata.interfaces.Icsvreplicata zope.interface.Interface"
-    /> 
-
-
+    />
+  <adapter
+      name="comments_exporter"
+      factory=".exportimport_plugins.CommentsExportImporter"
+      provides="Products.csvreplicata.interfaces.ICSVReplicataExportImportPlugin"
+      for="Products.csvreplicata.interfaces.Icsvreplicata zope.interface.Interface"
+    />
+  <adapter
+      name="comments_searcher"
+      factory=".exportimport_plugins.CommentsObjectsSearcher"
+      provides="Products.csvreplicata.interfaces.ICSVReplicataObjectsSearcher"
+      for="Products.csvreplicata.interfaces.Icsvreplicata Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot" />
 </configure>

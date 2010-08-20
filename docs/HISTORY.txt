@@ -1,6 +1,11 @@
 Changelog
 ===========
 
+1.1.7 - 2010-08-20
+------------------
+* Adding comments exporter/searcher [kiorky]
+ 
+
 1.1.6 - 2010-07-30
 ------------------
 * Fix importObject (obj referenced before assignment) [danjacka]

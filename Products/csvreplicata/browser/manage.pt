@@ -114,7 +114,7 @@
 					</div>
           <div class="field">
               <div class="widget"
-                tal:define="pfvalue here/portal_csvreplicatatool/getPlainFormat|nothing"> 
+                tal:define="pfvalue here/getPlainFormat|here/portal_csvreplicatatool/getPlainFormat|nothing"> 
                 <label for="is_plain_format">Use plain csv format instead of original</label>
                 <input class="noborder" name="is_plain_format" id="is_plain_format" 
                   tal:attributes="checked python:pfvalue and 'checked' or ''"
@@ -225,7 +225,7 @@
 					</div>
            <div class="field">
               <div class="widget"
-                tal:define="pfvalue here/portal_csvreplicatatool/getPlainFormat|nothing"> 
+                tal:define="pfvalue here/getPlainFormat|here/portal_csvreplicatatool/getPlainFormat|nothing"> 
                 <label for="is_plain_format">Use plain csv format instead of original</label>
                 <input class="noborder" name="is_plain_format" id="is_plain_format" 
                   tal:attributes="checked python:pfvalue and 'checked' or ''"
