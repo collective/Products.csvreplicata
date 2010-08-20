@@ -69,30 +69,6 @@ class WorkflowExportImporter(adapters.CSVReplicataExportImportPluginAbstract):
 #   comments will be exported anyway
 #
 
-class CommentsObjectsSearcher(CSVReplicataObjectSearcherAbstract):
-
-    def getObjects(self):
-        logger = logging.getLogger('Products.csvreplicata.adapters.CommentsObjectsSearcher')
-        objs = []
-        c = getToolByName(self.context, 'portal_catalog')
-        bcomments = c.searchResults(**{
-            'meta_type': ['Discussion Item'],
-            'sort_on': 'in_reply_to',
-        })
-        lbcomments = len(bcomments)
-        logger.info('%s comments to export' % lbcomments)
-        SLICE = 1000
-        for i in range((lbcomments / SLICE) + 1):
-            lowerBound = SLICE * i
-            upperBound = SLICE * (i+1)
-            if upperBound > lbcomments:
-                upperBound = lbcomments
-            logger.info('Loading %s to %s comments.' % (lowerBound, upperBound))
-            scomments = [b.getObject()
-                         for b in bcomments[lowerBound : upperBound]]
-            objs.extend(scomments)
-        logger.info('All comments loaded.')
-        return objs
 
 class CommentsObjectsSearcher(adapters.CSVReplicataObjectSearcherAbstract):
 
