@@ -38,14 +38,29 @@ class CSVFile(CSVdefault):
             # zip module encode filename with latin1 format !
             # we provide a normalize string to avoid encoding zipe filenames problems
             filename = f.filename
-            if filename is None:
+            zip_filename = None
+            if not filename:
                 # fallback to id
                 try:
                     filename = f.getId()
                 except:
                     logger.error('Cant find filename for: %s' % '/'.getPhysicalPath())
-            zip_filename = normalizeString(filename, encoding='utf-8')
-            if zip is not None:
+            if filename:
+                if '.' in filename:
+                    filenamepref, filenamesuf = (
+                        ''.join(filename.split('.')[:-1]),
+                        ''.join(filename.split('.')[-1])
+                    )
+                    zip_filename = '%s%s%s' % (
+                        normalizeString(filenamepref, 
+                                        encoding='utf-8'),
+                        '.', filenamesuf)
+                else:
+                    zip_filename = normalizeString(
+                        filename,
+                        encoding='utf-8')
+
+            if zip is not None and zip_filename:
                 #logger.error(obj.Schema().getField(field).getType())
                 if obj.Schema().getField(field).getType() in \
                 ("plone.app.blob.subtypes.file.ExtensionBlobField",
