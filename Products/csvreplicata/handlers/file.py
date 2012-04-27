@@ -38,6 +38,12 @@ class CSVFile(CSVdefault):
             # zip module encode filename with latin1 format !
             # we provide a normalize string to avoid encoding zipe filenames problems
             filename = f.filename
+            if filename is None:
+                # fallback to id
+                try:
+                    filename = f.getId()
+                except:
+                    logger.error('Cant find filename for: %s' % '/'.getPhysicalPath())
             zip_filename = normalizeString(filename, encoding='utf-8')
             if zip is not None:
                 #logger.error(obj.Schema().getField(field).getType())
