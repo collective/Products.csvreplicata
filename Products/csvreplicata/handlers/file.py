@@ -23,6 +23,24 @@ from base import CSVdefault
 
 logger = logging.getLogger('csvreplicata.HANDLER')
 
+def get_zip_filename(filename):
+    zip_filename = None
+    if '.' in filename:
+        filenamepref, filenamesuf = (
+            ''.join(filename.split('.')[:-1]),
+            ''.join(filename.split('.')[-1])
+        )
+        zip_filename = '%s%s%s' % (
+            normalizeString(filenamepref, 
+                            encoding='utf-8'),
+            '.', filenamesuf)
+    else:
+        zip_filename = normalizeString(
+            filename,
+            encoding='utf-8') 
+    return zip_filename
+        
+
 class CSVFile(CSVdefault):
     """
     """
@@ -46,20 +64,7 @@ class CSVFile(CSVdefault):
                 except:
                     logger.error('Cant find filename for: %s' % '/'.getPhysicalPath())
             if filename:
-                if '.' in filename:
-                    filenamepref, filenamesuf = (
-                        ''.join(filename.split('.')[:-1]),
-                        ''.join(filename.split('.')[-1])
-                    )
-                    zip_filename = '%s%s%s' % (
-                        normalizeString(filenamepref, 
-                                        encoding='utf-8'),
-                        '.', filenamesuf)
-                else:
-                    zip_filename = normalizeString(
-                        filename,
-                        encoding='utf-8')
-
+                zip_filename = get_zip_filename(filename)
             if zip is not None and zip_filename:
                 #logger.error(obj.Schema().getField(field).getType())
                 if obj.Schema().getField(field).getType() in \
@@ -87,7 +92,7 @@ class CSVFile(CSVdefault):
                 try:
                     # filename in zip is different from value
                     # filename == normalizeString(value,encoding='utf-8')
-                    zip_filename = normalizeString(value, encoding='utf-8')
+                    zip_filename = get_zip_filename(value)
                     filestream = zip.read(os.path.join(parent_path, zip_filename))
                 except KeyError, e:
                     raise csvreplicataMissingFileInArchive, "%s not found in zip file" % (zip_filename)
