@@ -6,8 +6,7 @@ Verify the default handlers provided for Archetypes fields::
     >>> handlersDict = self.portal.portal_csvreplicatatool.getHandlers()
     >>> handlers = handlersDict.keys();handlers.sort()
     >>> pprint(handlers)
-    ['Products.ATBackRef.BackReferenceField',
-     'Products.Archetypes.Field.BooleanField',
+    ['Products.Archetypes.Field.BooleanField',
      'Products.Archetypes.Field.DateTimeField',
      'Products.Archetypes.Field.FileField',
      'Products.Archetypes.Field.FloatField',
@@ -19,10 +18,9 @@ Verify the default handlers provided for Archetypes fields::
      'Products.Archetypes.Field.TextField',
      'Products.AttachmentField.AttachmentField.AttachmentField',
      'default_handler',
-     'plone.app.blob.subtypes.file.ExtensionBlobField']
+     ...]
     >>> pprint([(h, handlersDict[h]['handler_class']) for h in handlers], width=130)
-    [('Products.ATBackRef.BackReferenceField', <Products.csvreplicata.handlers.reference.CSVReference object at ...>),
-     ('Products.Archetypes.Field.BooleanField', <Products.csvreplicata.handlers.base.CSVBoolean object at ...>),
+    [('Products.Archetypes.Field.BooleanField', <Products.csvreplicata.handlers.base.CSVBoolean object at ...>),
      ('Products.Archetypes.Field.DateTimeField', <Products.csvreplicata.handlers.base.CSVDateTime object at ...>),
      ('Products.Archetypes.Field.FileField', <Products.csvreplicata.handlers.file.CSVFile object at ...>),
      ('Products.Archetypes.Field.FloatField', <Products.csvreplicata.handlers.base.CSVFloat object at ...>),
@@ -34,7 +32,7 @@ Verify the default handlers provided for Archetypes fields::
      ('Products.Archetypes.Field.TextField', <Products.csvreplicata.handlers.base.CSVText object at ...>),
      ('Products.AttachmentField.AttachmentField.AttachmentField', <Products.csvreplicata.handlers.file.CSVFile object at ...>),
      ('default_handler', <Products.csvreplicata.handlers.base.CSVdefault object at ...>),
-     ('plone.app.blob.subtypes.file.ExtensionBlobField', <Products.csvreplicata.handlers.file.CSVFile object at ...>)]
+     (...
 
 
 What happened with csvreplicata during import/export if MyField is not in tool's

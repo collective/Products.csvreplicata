@@ -12,8 +12,8 @@
 
 
 <div metal:fill-slot="prefs_configlet_main" i18n:domain="plone">
-    
-    
+
+
 
 	<a	href=""
 		class="link-parent"
@@ -23,13 +23,13 @@
 	</a>
 
 	<p class="documentDescription">
-		This is CSV Replicata settings section, you modify the default behaviour 
-		in the lists below. 
+		This is CSV Replicata settings section, you modify the default behaviour
+		in the lists below.
 	</p>
 
 
 	<form	style="float: left;"
-			tal:attributes="action python:here.absolute_url()+'/setCSVsettings'" 
+			tal:attributes="action python:here.absolute_url()+'/setCSVsettings'"
 			method="post">
 
 		<fieldset style="float: left; margin-right: 1em;">
@@ -78,13 +78,13 @@
                             name="datetimeformat"
                             tal:attributes="value here/portal_csvreplicatatool/DateTimeFormat|None"/>
                 </div>
-            </div> 
+            </div>
 
             <div class="field">
               <div class="widget"
-                tal:define="pfvalue here/getPlainFormat|here/portal_csvreplicatatool/getPlainFormat|nothing"> 
+                tal:define="pfvalue here/getPlainFormat|here/portal_csvreplicatatool/getPlainFormat|nothing">
                 <label for="is_plain_format">Use plain csv format instead of original</label>
-                <input class="noborder" name="is_plain_format" id="is_plain_format" 
+                <input class="noborder" name="is_plain_format" id="is_plain_format"
                   tal:attributes="checked python:pfvalue and 'checked' or ''"
                   type="checkbox"/>
               </div>
@@ -93,21 +93,31 @@
               <div class="widget">
                 <label for="formElements">Temporary path for exports </label>
                 <div class="formHelp">Fill only if not default temporary storage</div>
-                <input  type="text" id="tempPath" name="tempPath" 
+                <input  type="text" id="tempPath" name="tempPath"
                   tal:attributes="value here/getTempPath|here/portal_csvreplicatatool/getTempPath|nothing"/>
               </div>
-            </div>  
-
+            </div>
+            <div class="field">
+              <div class="widget"
+                tal:define="pfvalue here/getPartialCommitNumber|here/portal_csvreplicatatool/getPartialCommitNumber|string:0">
+                <label for="partial_commit_number">Commit each number of objects</label>
+                <div   for="partial_commit_number">0 for only one commit at the end</div>
+                <input name="partial_commit_number"
+                  id="partial_commit_number"
+                  type="text"
+                  tal:attributes="value pfvalue"/>
+              </div>
+            </div>
 			<div class="field">
 				<div class="widget">
 					<input class="context" type="submit" value="Save"/>
 				</div>
-			</div>	
+			</div>
 		</fieldset>
 	</form>
 
 	<form	style="float: left;"
-			tal:attributes="action python:here.absolute_url()+'/setExcludedFields'" 
+			tal:attributes="action python:here.absolute_url()+'/setExcludedFields'"
 			method="post">
 
 		<fieldset style="float: left; margin-right: 1em;">
@@ -120,7 +130,7 @@
 								name="excludedfieldsclasses"
 								tal:content="python:'\n'.join(here.getExcludedfieldsclasses())">Fields Classes to exclude</textarea>
 				</div>
-			</div>	
+			</div>
 			<div class="field">
 				<div class="widget">
 					<label for="formElements">Fields</label>
@@ -129,7 +139,7 @@
 								name="excludedfields"
 								tal:content="python:'\n'.join(here.getExcludedfields())">Fields to exclude</textarea>
 				</div>
-			</div>	
+			</div>
             <div class="field">
 				<div class="widget">
 					<input class="context" type="submit" value="Save"/>
@@ -142,7 +152,7 @@
 	<div class="visualClear"><!-- --></div>
 
 	<form	style="float: left;"
-			tal:attributes="action python:here.absolute_url()+'/setCSVHandledTypes'" 
+			tal:attributes="action python:here.absolute_url()+'/setCSVHandledTypes'"
 			method="post">
 
 		<fieldset style="float: left; margin-right: 1em;">
@@ -161,7 +171,7 @@
                     				tal:attributes="value python:t[1]" selected>Type Name</option>
                     		<option	tal:content="python:t[0]"
                     				tal:condition="python:not t[0] in here.replicabletypes.keys()"
-                    				tal:attributes="value python:t[1]">Type Name</option>	
+                    				tal:attributes="value python:t[1]">Type Name</option>
                     	</tal:block>
 					</select>
 				</div>
@@ -174,10 +184,10 @@
 		</fieldset>
 	</form>
 
-	
-	
+
+
 	<form	style="float: left;"
-			tal:attributes="action python:here.absolute_url()+'/setCSVHandledTypesSchematas'" 
+			tal:attributes="action python:here.absolute_url()+'/setCSVHandledTypesSchematas'"
 			method="post">
 
 		<fieldset style="float: left; margin-right: 1em;">
@@ -190,7 +200,7 @@
                 		<tal:block tal:define="position repeat/t/number">
                 			<label for="formElements">
                 				<tal:block tal:content="python:t">Type Name</tal:block>
-                			</label>				
+                			</label>
 							<select	multiple
 									size="5"
 									class="noborder"
@@ -217,11 +227,11 @@
 			</div>
 		</fieldset>
 	</form>
-	
+
 	<div class="visualClear"><!-- --></div>
-	
-	
-	
+
+
+
 </div>
 
 </body>

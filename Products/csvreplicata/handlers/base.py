@@ -13,6 +13,9 @@ from zope import interface
 from Products.csvreplicata.interfaces import ICSVDefault
 
 from DateTime import DateTime
+
+from datetime import datetime
+
 from time import strptime
 
 from Products.CMFCore.utils import getToolByName
@@ -22,11 +25,24 @@ from Products.csvreplicata.exceptions import *
 import logging
 logger = logging.getLogger('HANDLER')
 
+
+def get_padded_year(v, format):
+    yformat = format.replace('%Y', '_YEARBEGIN_%Y_YEAREND_')
+    datestr = v.strftime(yformat)
+    year = datestr.split('_YEARBEGIN_')[1].split('_YEAREND_')[0]
+    year = (4 - len(year))*'0'+year
+    ret = (datestr.split('_YEARBEGIN_')[0] +
+           year +
+           datestr.split('_YEAREND_')[1]
+          )
+    return ret
+
 class CSVdefault(object):
     """
     """
     interface.implements(ICSVDefault)
-    
+
+
     def get(self, obj, field, context=None):
         """
         """
@@ -35,12 +51,12 @@ class CSVdefault(object):
             return ''
         else:
             return str(v)
-    
+
     def set(self, obj, field, value, context=None):
         if value == '':
             value = None
         self.store(field, obj, value)
-        
+
     def store(self, field, obj, value):
         old_value = obj.Schema().getField(field).get(obj)
         if type(old_value) is tuple and type(value) is list:
@@ -50,12 +66,12 @@ class CSVdefault(object):
         else:
             raise csvreplicataPermissionException, \
             "Insufficient privileges to modify this object and/or field"
-        
+
 class CSVString(CSVdefault):
     """
     """
     # special case for bizarious collage vocabs.
-    collage_vocab = 'Products.Collage.content._portlet.PortletVocabulary' 
+    collage_vocab = 'Products.Collage.content._portlet.PortletVocabulary'
 
     def getLenVocab(self, vocab):
         """
@@ -69,12 +85,12 @@ class CSVString(CSVdefault):
             lenvocab = 1
         return lenvocab
 
-    
+
     def get(self, obj, field, context=None):
         """
         """
         v = obj.Schema().getField(field).getRaw(obj)
-        
+
         vocab = obj.Schema().getField(field).vocabulary
 
 
@@ -93,12 +109,12 @@ class CSVString(CSVdefault):
         if v is None:
             v = ''
         return v
-    
+
     def set(self, obj, field, value, context=None):
         v = obj.Schema().getField(field).getRaw(obj)
-        
+
         vocab = obj.Schema().getField(field).vocabulary
-        
+
         lenvocab = 1
         if context.vocabularyvalue == "Yes" and self.getLenVocab(vocab):
             if isinstance(vocab, list):
@@ -111,11 +127,11 @@ class CSVString(CSVdefault):
             else:
                 value = ''
         self.store(field, obj, value)
-        
+
 class CSVInteger(CSVdefault):
     """
     """
-    
+
     def get(self, obj, field, context=None):
         """
         """
@@ -124,7 +140,7 @@ class CSVInteger(CSVdefault):
             return ''
         else:
             return str(v)
-    
+
     def set(self, obj, field, value, context=None):
         if value=='':
             value = None
@@ -135,7 +151,7 @@ class CSVInteger(CSVdefault):
 class CSVFloat(CSVdefault):
     """
     """
-    
+
     def get(self, obj, field, context=None):
         """
         """
@@ -144,7 +160,7 @@ class CSVFloat(CSVdefault):
             return ''
         else:
             return str(v)
-    
+
     def set(self, obj, field, value, context=None):
         if value=='':
             value = None
@@ -155,7 +171,7 @@ class CSVFloat(CSVdefault):
 class CSVBoolean(CSVdefault):
     """
     """
-    
+
     def get(self, obj, field, context=None):
         """
         """
@@ -164,7 +180,7 @@ class CSVBoolean(CSVdefault):
             return ''
         else:
             return str(v)
-    
+
     def set(self, obj, field, value, context=None):
         if value=='':
             value = None
@@ -176,11 +192,11 @@ class CSVBoolean(CSVdefault):
             else:
                 raise csvreplicataException, field+" must be True or False"
         self.store(field, obj, value)
-        
+
 class CSVLines(CSVdefault):
     """
     """
-    
+
     def get(self, obj, field, context=None):
         """
         """
@@ -189,7 +205,7 @@ class CSVLines(CSVdefault):
             return ''
         else:
             return '\n'.join(v)
-    
+
     def set(self, obj, field, value, context=None):
         if value=='':
             value = []
@@ -197,26 +213,26 @@ class CSVLines(CSVdefault):
             value = value.split('\n')
         try:
             self.store(field, obj, value)
-        except Exception, e: 
+        except Exception, e:
             if field == 'subject':
                 obj.setSubject(value)
             else:
                 raise
 
-        
+
 class CSVText(CSVdefault):
     """
     """
-    
+
     def get(self, obj, field, context=None):
         """
         """
         v = obj.Schema().getField(field).getRaw(obj)
         return v
-    
+
     def set(self, obj, field, value, context=None):
         self.store(field, obj, value)
-        
+
 class CSVDateTime(CSVdefault):
     """
     """
@@ -229,13 +245,16 @@ class CSVDateTime(CSVdefault):
             #format = '%d/%m/%Y'
         else:
             format = context.datetimeformat
-            
+
         v = obj.Schema().getField(field).get(obj)
+        ret = ''
         if isinstance(v, DateTime):
-            return v.strftime(format)
-        else:
-            return ''
-    
+            if 'Y' in format and v.year() < 1000:
+                ret = get_padded_year(v, format)
+            else:
+                ret = v.strftime(format)
+        return ret
+
     def set(self, obj, field, value, context=None):
         if context is None:
             csvtool = getToolByName(obj, "portal_csvreplicatatool")
@@ -243,13 +262,15 @@ class CSVDateTime(CSVdefault):
             #format = '%d/%m/%Y'
         else:
             format = context.datetimeformat
-            
+
         if value == '':
             value = None
         else:
             try:
-                dt = strptime(value, format)
-                value = DateTime(dt[0], dt[1], dt[2], dt[3], dt[4], dt[5])
+                t = strptime(value, format)
+                dt = datetime(t[0], t[1], t[2], t[3], t[4], t[5])
+                value = DateTime(dt)
                 self.store(field, obj, value)
             except DateTime.DateTimeError, e:
                 raise csvreplicataException, v + " is not a valid date/time"
+

@@ -16,7 +16,7 @@
          <div
            tal:condition="not: context/isCSVRPlone25"
            tal:replace="structure provider:plone.abovecontenttitle" />
- 
+
 
          <tal tal:condition="not: context/isCSVRPlone25">
            <h1
@@ -113,14 +113,25 @@
 						</div>
 					</div>
           <div class="field">
-              <div class="widget"
-                tal:define="pfvalue here/getPlainFormat|here/portal_csvreplicatatool/getPlainFormat|nothing"> 
-                <label for="is_plain_format">Use plain csv format instead of original</label>
-                <input class="noborder" name="is_plain_format" id="is_plain_format" 
-                  tal:attributes="checked python:pfvalue and 'checked' or ''"
-                  type="checkbox"/>
-              </div>
-            </div>  
+            <div class="widget"
+              tal:define="pfvalue here/getPlainFormat|here/portal_csvreplicatatool/getPlainFormat|nothing">
+              <label for="is_plain_format">Use plain csv format instead of original</label>
+              <input class="noborder" name="is_plain_format" id="is_plain_format"
+                tal:attributes="checked python:pfvalue and 'checked' or ''"
+                type="checkbox"/>
+            </div>
+          </div>
+          <div class="field">
+            <div class="widget"
+              tal:define="pfvalue here/getPartialCommitNumber|here/portal_csvreplicatatool/getPartialCommitNumber|string:0">
+              <label for="partial_commit_number">Commit each number of objects</label>
+              <div   for="partial_commit_number">0 for only one commit at the end</div>
+              <input name="partial_commit_number"
+                id="partial_commit_number"
+                type="text"
+                tal:attributes="value pfvalue"/>
+            </div>
+          </div>
 					<div class="field">
 						<div class="widget">
 						    <label for="formElements">Import vocabulary value</label>
@@ -225,13 +236,13 @@
 					</div>
            <div class="field">
               <div class="widget"
-                tal:define="pfvalue here/getPlainFormat|here/portal_csvreplicatatool/getPlainFormat|nothing"> 
+                tal:define="pfvalue here/getPlainFormat|here/portal_csvreplicatatool/getPlainFormat|nothing">
                 <label for="is_plain_format">Use plain csv format instead of original</label>
-                <input class="noborder" name="is_plain_format" id="is_plain_format" 
+                <input class="noborder" name="is_plain_format" id="is_plain_format"
                   tal:attributes="checked python:pfvalue and 'checked' or ''"
                   type="checkbox"/>
               </div>
-            </div> 
+            </div>
 
 				    <div class="field">
 						<div class="widget">

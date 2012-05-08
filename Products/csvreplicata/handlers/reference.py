@@ -53,8 +53,8 @@ class CSVReference(CSVdefault):
                     target = obj.unrestrictedTraverse(path)
                     ref.append(target)
                 except Exception, e:
-                    raise csvreplicataBrokenReferenceException, path + \
-                    " cannot be found"
-
+                    raise csvreplicataBrokenReferenceException(
+                        path + " cannot be found"
+                    )
         self.store(field, obj, ref)
 

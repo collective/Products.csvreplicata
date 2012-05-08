@@ -110,12 +110,21 @@ schema = Schema(
                 label_msgid='csvreplicata_label_tempPath',
                 i18n_domain='csvreplicata',
             ),
-        ), 
+        ),
         LinesField(
             name='excludedfieldsclasses',
             widget=LinesField._properties['widget'](
                 label='Excludedfieldsclasses',
                 label_msgid='csvreplicata_label_excludedfieldsclasses',
+                i18n_domain='csvreplicata',
+            ),
+        ),
+        IntegerField(
+            name='partialCommitNumber',
+            default='',
+            widget=IntegerWidget(
+                label='Partial Commit number',
+                label_msgid='csvreplicata_label_patial_commit_number',
                 i18n_domain='csvreplicata',
             ),
         ),
@@ -186,6 +195,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         self.setDateTimeFormat(REQUEST.get('datetimeformat'));
         self.setTempPath(REQUEST.get('tempPath'))
         self.setPlainFormat(REQUEST.get('is_plain_format', '') == 'on')
+        self.setPartialCommitNumber(int(REQUEST.get('partial_commit_number', '')))
         # Redirection of the page now that the treatment is done
         REQUEST.RESPONSE.redirect(self.absolute_url()+'/csv_settings')
 
@@ -295,7 +305,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     def getHandlers(self):
         """
         """
-        if not getattr(self, 'handlers', None): 
+        if not getattr(self, 'handlers', None):
             setattr(self, 'handlers', {})
         # migrate persistent mapping with possible new values
         for h in HANDLERS:

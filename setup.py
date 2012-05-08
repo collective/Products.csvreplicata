@@ -51,6 +51,7 @@ setup(name='Products.csvreplicata',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'Products.AdvancedQuery >= 3.0.3' ,
           # -*- Extra requirements: -*-
       ],
       entry_points="""

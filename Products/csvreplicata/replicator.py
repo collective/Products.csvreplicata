@@ -12,8 +12,13 @@ __docformat__ = 'plaintext'
 import logging
 from DateTime import DateTime
 from time import strptime
+
+from pprint import pprint
 import csv
 import cStringIO
+
+from Acquisition import aq_inner
+import transaction
 import re
 from exceptions import *
 import itertools
@@ -52,6 +57,81 @@ DOUBLELINER = re.compile(u"\n\s*(\n\s*)+", re_flags)
 EMPTYLINE  = re.compile(u"^()$", re_flags)
 
 
+def P(item):
+    try:
+        return item.getPath()
+    except AttributeError:
+        return "/".join(
+            item.getPhysicalPath())
+
+
+def get_brain_from_path(catalog, i):
+    return catalog.searchResults({
+        'path' : {"depth":0,
+                  'query':i},
+    })[0]
+
+
+def find_same_level_ancestors(itema, itemb):
+    catalog = itema.portal_catalog
+    lineagea = itema.getPath().split('/')
+    lineageb = itemb.getPath().split('/')
+    lasta, lastb = "", ""
+    while not "".join(lineageb).startswith(
+        "".join(lineagea)
+    ):
+        lasta = lineagea.pop()
+    if lasta:
+        lineagea.append(lasta)
+    lineageb = lineageb[:len(lineagea)]
+    # first child after common ancestor
+    bra = get_brain_from_path(catalog, "/".join(lineagea))
+    # first child after common ancestor
+    brb = get_brain_from_path(catalog, "/".join(lineageb))
+    return ((bra, get_position(bra)),
+            (brb, get_position(brb)))
+
+def get_container(i):
+    catalog = i.portal_catalog
+    ppath = i.portal_url.getPortalPath()
+    portal = i.portal_url.getPortalObject()
+    path = '/'.join(P(i).split('/')[:-1])
+    if ppath == path:
+        ret = portal
+    else:
+        ret = get_brain_from_path(catalog, path)
+    return ret
+
+
+def get_contained(i):
+    catalog = i.portal_catalog
+    path = '/'.join(i.getPath().split('/')[:-1])
+    return [a.id for a in catalog.searchResults(
+        {'path' : {"depth":1, 'query':path},
+         'sort_on': 'getObjPositionInParent',
+        })]
+
+def get_position(i):
+    return get_contained(i).index(i.id)
+
+def get_reverse_position(i):
+    pos = get_position(i)
+    return len(get_contained(i)) - pos
+
+def custom_sort(a, b):
+    ka = "%s__SEP__%s"% (
+        P(get_container(a)), get_reverse_position(a)
+    )
+    kb = "%s__SEP__%s"% (
+        P(get_container(b)), get_reverse_position(b)
+    )
+    ret = 0
+    if ka < kb:
+        ret = 1
+    if ka > kb:
+        ret = -1
+    return ret
+
 def fill_empty_fields_and_write_rows(writer, ids, labels=None, rows=None):
     if ids:
         writer.writerow(ids)
@@ -66,8 +146,6 @@ def fill_empty_fields_and_write_rows(writer, ids, labels=None, rows=None):
                     for i in range(len(ids) - len(row)):
                         rows[index].append(None)
             writer.writerow(rows[index])
-
-
 
 class IgnoreLineException(Exception):
     """IngoreLineException."""
@@ -132,14 +210,15 @@ class Replicator(object):
                   stringdelimiter=None,
                   datetimeformat=None,
                   conflict_winner="SERVER",
-                  wf_transition=None, 
+                  wf_transition=None,
                   zip=None,
                   vocabularyvalue="No",
                   count_created=0,
                   count_modified=0,
                   errors=None,
                   ignore_content_errors=False,
-                  plain_format = None):
+                  plain_format = None,
+                  partial_commit_number=0):
         """
         CSV import.
 
@@ -148,29 +227,45 @@ class Replicator(object):
         if not errors:
             errors = []
         loops = 0
-        while self.flag :
-
-            count_created, count_modified, export_date, errors = \
-                    self._csvimport(csvfile,
-                                    encoding=encoding,
-                                    delimiter=delimiter,
-                                    stringdelimiter=stringdelimiter,
-                                    datetimeformat=datetimeformat,
-                                    conflict_winner=conflict_winner,
-                                    wf_transition=wf_transition,
-                                    zip=zip,
-                                    vocabularyvalue=vocabularyvalue,
-                                    count_created=count_created,
-                                    count_modified=count_modified,
-                                    errors=errors,
-                                    ignore_content_errors=ignore_content_errors,
-                                    plain_format=plain_format)
+        old_count_created, old_count_modified = 0, 0
+        status = {}
+        while (False or self.flag):
             loops = loops + 1
-            # after 10 loops, we stop trying to resolve broken references
-            if loops > 10 :
+            if loops > 1:
+                logger.warn('Retry: %s' % loops)
+            (count_created, count_modified,
+             export_date, errors) = (
+                 self._csvimport(
+                     csvfile,
+                     encoding=encoding,
+                     delimiter=delimiter,
+                     stringdelimiter=stringdelimiter,
+                     datetimeformat=datetimeformat,
+                     conflict_winner=conflict_winner,
+                     wf_transition=wf_transition,
+                     zip=zip,
+                     vocabularyvalue=vocabularyvalue,
+                     count_created=count_created,
+                     count_modified=count_modified,
+                     errors=errors,
+                     ignore_content_errors=ignore_content_errors,
+                     plain_format=plain_format,
+                     partial_commit_number=partial_commit_number,
+                     loops = loops,
+                     status = status,
+                 )
+             )
+            # after 10 loops, we stop trying
+            # to resolve broken references
+            if loops > 10 and not (
+                old_count_modified != count_modified
+                or old_count_created != count_created
+            ):
                 self.flag = False
-
-        return (count_created, count_modified, export_date, errors)
+            old_count_created  = count_created
+            old_count_modified = count_modified
+        return (count_created, count_modified,
+                export_date, errors)
 
     def _csvimport(self,
                    csvfile,
@@ -186,17 +281,20 @@ class Replicator(object):
                    count_modified,
                    errors,
                    ignore_content_errors=False,
-                   plain_format=None):
-
+                   plain_format=None,
+                   partial_commit_number=0,
+                   loops = 0,
+                   status = None):
+            if status is None:
+                status = {}
             csvfile.seek(0)
-
             # get portal types
             types = getPortalTypes(self.context)
 
             # read parameters
             csvtool = getToolByName(self.context, "portal_csvreplicatatool")
             if plain_format is None:
-                plain_format = csvtool.getPlainFormat() 
+                plain_format = csvtool.getPlainFormat()
             if encoding is None:
                 encoding = csvtool.getEncoding()
             if delimiter is None:
@@ -209,12 +307,11 @@ class Replicator(object):
             self.datetimeformat = datetimeformat
             self.vocabularyvalue = vocabularyvalue
 
-
             # read csv
             reader = csv.reader(csvfile, delimiter=delimiter,
                                 quotechar=stringdelimiter)
-#                                ,
-#                                quoting=csv.QUOTE_NONNUMERIC)
+#                                 ,
+#                                 quoting=csv.QUOTE_NONNUMERIC)
             line = 1
             # parse header
             head = reader.next()
@@ -236,9 +333,9 @@ class Replicator(object):
                 specific_fields = head[offset+3:]
             #rows = [r for r in reader]
             #for row in rows:
-            for row in reader:
+            for idx, row in enumerate(reader):
                 #if plain_format and (line ==3):
-                #    export_date = strcsv_to_datetime(row[1]) 
+                #    export_date = strcsv_to_datetime(row[1])
                 line = line + 1
                 if not label_line:
                     # read type fields
@@ -253,7 +350,7 @@ class Replicator(object):
                             if plain_format and (line == 2):
                                 raise IgnoreLineException()
                             if plain_format:ignore_content_errors=True
-                            (is_new, is_modified) = \
+                            (is_new, is_modified, incomplete) = \
                                     self.importObject(
                                         row[offset:],
                                         specific_fields,
@@ -264,15 +361,22 @@ class Replicator(object):
                                         zip,
                                         encoding=encoding,
                                         ignore_content_errors=ignore_content_errors,
-                                        plain_format=plain_format
+                                        plain_format=plain_format,
+                                        loops=loops,
+                                        status = status,
                                     )
-                            if is_new:
+                            if bool(is_new):
                                 count_created = count_created + 1
-                            elif is_modified:
+                            elif bool(is_modified):
                                 count_modified = count_modified + 1
-
+                            if incomplete:
+                                needs_another_loop = True
+                            if partial_commit_number:
+                                if idx % partial_commit_number == 0:
+                                    transaction.commit()
                         except IgnoreLineException, e:
                             pass
+
                         except csvreplicataConflictException, e:
                             #errors.append("Conflict on line " + \
                                           #str(line)+": %s" % (e))
@@ -286,19 +390,19 @@ class Replicator(object):
 
                         except csvreplicataNonExistentContainer, e:
                             needs_another_loop = True
-                            pass
 
                         except csvreplicataMissingFileInArchive, e:
                             errors.append("Error in line "+str(line) + ": %s" % (e))
-                            pass
 
                         except Exception, e:
-#                            errors.append("Error in line "+str(line) + \
-#                                          ": %s" % (e))
-                            raise Exception, "Error in csv file line "+str(line) + ": %s \n%s" % (e, row)
+                             errors.append("Error in line "+str(line) + \
+                                           ": %s" % (e))
+                            #raise Exception, "Error in csv file line "+str(line) + ": %s \n%s" % (e, row)
                 else:
                     label_line = False
-
+            # commit at the end of the loop if we want partial commits
+            if partial_commit_number and (bool(needs_another_loop)==True):
+                transaction.commit() 
             self.flag = needs_another_loop
             return (count_created, count_modified, export_date, errors)
 
@@ -313,23 +417,30 @@ class Replicator(object):
                      zip,
                      encoding='utf-8',
                      ignore_content_errors=False,
-                     plain_format=False):
+                     plain_format=False,
+                     loops = 0,
+                     status = None,):
         """
         """
         modified = False
         is_new_object = False
         protected = True
+        incomplete = False
         parent_path = row[0]
         id = row[1]
         type_class = row[2]
+        if status is None:
+            status = {}
         if parent_path == "":
             container = self.context
         else:
             try:
-                container = self.context.unrestrictedTraverse(parent_path)
+                container = self.context.unrestrictedTraverse(
+                    parent_path)
             except:
-                raise csvreplicataNonExistentContainer, \
-                "Non existent container %s " % parent_path
+                raise csvreplicataNonExistentContainer(
+                    "Non existent container %s " % parent_path
+                )
 
         # acquisition nightmare, just use base zope ids
         oids = container.objectIds()
@@ -343,6 +454,9 @@ class Replicator(object):
             protected = False
 
         obj = getattr(container.aq_explicit, id, None)
+        opath = '/'.join(obj.getPhysicalPath())
+        if not opath in status:
+            status[opath] = {}
 
         if not is_new_object:
             # object exists, so check conflicts
@@ -354,7 +468,8 @@ class Replicator(object):
                 protected = False
 
         # update object
-        csvtool = getToolByName(self.context, "portal_csvreplicatatool")
+        csvtool = getToolByName(
+            self.context, "portal_csvreplicatatool")
         handlers = csvtool.getHandlers()
         # skip parent, id, title
         i = 3 - 1
@@ -363,6 +478,11 @@ class Replicator(object):
             if f is not None and f != "":
                 field, type, h = None, None, None
                 try:
+                    fstatus = status[opath].get(f, False)
+                    fcomplete = fstatus == 'complete'
+                    fincomplete = fstatus == 'incomplete'
+                    if fcomplete:
+                        continue
                     field = obj.Schema().getField(f)
                     if field is None and ignore_content_errors:
                         if not plain_format:
@@ -388,17 +508,27 @@ class Replicator(object):
                             except:
                                 pass
                     if old_value != v:
-                        if protected:
-                            raise csvreplicataConflictException, \
-                            "Overlapping content modified on" \
-                            " the server after exportation"
+                        if protected and not fincomplete:
+                            raise csvreplicataConflictException(
+                                "Overlapping content modified "
+                                "on the server after "
+                                "exportation"
+                            )
                         else:
-                            modified = True
                             if h['file']:
                                 handler.set(obj, f, v, context=self, zip=zip, parent_path=parent_path)
                             else:
                                 handler.set(obj, f, v, context=self)
+                            if fincomplete:
+                                logger.warn(
+                                    '%s -> %s (%s) import '
+                                    'is now complete' % (
+                                        opath, f, v))
+                            status[opath][f] = 'complete'
+                            modified = True
                 except Exception, e:
+                    incomplete = True
+                    status[opath][f] = 'incomplete'
                     if ignore_content_errors:
                         where = 'Path:\t%s\n\tTitle: %s\n' % (
                             '/'.join(obj.getPhysicalPath()),
@@ -445,18 +575,47 @@ class Replicator(object):
                 wftool.doActionFor( obj, wf_transition)
             except Exception, e:
                 pass
+            is_new_object = obj
         elif modified:
             event.notify(ObjectEditedEvent(obj))
             obj.at_post_edit_script()
             obj.reindexObject()
+            modified = obj
 
         # search plugins and apply them to our objects
         if len(row) > 3:
              plugins = list(getAdapters([self, obj], ICSVReplicataExportImportPlugin))
              for pluginid, plugin in plugins:
-                 plugin.set_values(row[3:], specific_fields)
-    
-        return (is_new_object, modified)
+                 k = 'csvreplicataplugin_%s' % pluginid
+                 pstatus = status[opath].get(k,  False)
+                 pcomplete = 'complete' == pstatus
+                 pincomplete = 'incomplete' == pstatus
+                 if pcomplete:
+                     continue
+                 try:
+                     status[opath][k] = False
+                     plugin.set_values(row[3:], specific_fields)
+                     if pincomplete:
+                         logger.warn(
+                             '%s -> %s plugin import '
+                             'is now complete' % (
+                                 opath, pluginid))
+
+                     status[opath][k] = 'complete'
+                 except Exception, e:
+                     incomplete = True
+                     status[opath][k] = 'incomplete'
+                     where = 'Path:\t%s\n\tTitle: %s\n' % (
+                         '/'.join(obj.getPhysicalPath()),
+                         obj.Title(),
+                     )
+                     logger.warning(
+                         'Plugin Oops:\n'
+                         '%s\n'
+                         '%s\n'
+                         '%s\n' % (e, pluginid, where)
+                     )
+        return (is_new_object, modified, incomplete)
 
     def csvexport(self,
                   encoding = None,
@@ -494,6 +653,9 @@ class Replicator(object):
 
         # search objects
         #exportable_content_types = csvtool.getReplicableTypesSorted()
+        catalog = self.context.portal_catalog
+        portal = self.context.portal_url.getPortalObject()
+
         if exportable_content_types is not None:
             if self.context.Type() == "Smart Folder":
                 all = self.context.queryCatalog(full_objects=True)
@@ -513,10 +675,10 @@ class Replicator(object):
 
                 if wf_states is not None:
                     query['review_state'] = wf_states
-
-                search_exportable = self.context.portal_catalog.searchResults(
-                    query)
-                exportable_objects = [o.getObject() for o in search_exportable]
+                search_exportable = list(catalog.searchResults(query))
+                search_exportable.sort(custom_sort)
+                exportable_objects = [o.getObject()
+                                      for o in search_exportable]
         else:
             exportable_objects = []
 
@@ -641,7 +803,7 @@ class Replicator(object):
             row = dict([(field, values_row[cf.index(field)]) for field in cf])
             #current = "/".join(self.context.getPhysicalPath())
             #parent_path = "/".join(obj.getParentNode().getPhysicalPath())
-            #parent_path = parent_path[len(current)+1:] 
+            #parent_path = parent_path[len(current)+1:]
             #row["parent"] = parent_path
             writer.writerow(row)
 
@@ -803,9 +965,8 @@ class Replicator(object):
         handlers = csvtool.getHandlers()
         # add specific columns
         for f in specific_fields:
-            type = obj.Schema().getField(f).getType()
-
-            h = handlers.get(type, handlers['default_handler'])
+            otype = obj.Schema().getField(f).getType()
+            h = handlers.get(otype, handlers['default_handler'])
             # XXX:on plone25, 'allowDiscussion' is stored in a stringfield, force to be bool.
             if f == 'allowDiscussion':
                 h = handlers.get('Products.Archetypes.Field.BooleanField')

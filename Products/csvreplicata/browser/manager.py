@@ -77,11 +77,16 @@ class ReplicationManager(BrowserView):
         stringdelimiter = self.request.get("stringdelimiter")
         conflict_winner = self.request.get("conflictrule")
         wf_transition = self.request.get("wf_transition")
+        partial_commit_number = 0
+        try:
+            partial_commit_number = int(self.request.get("partial_commit_number"))
+        except:
+            pass
         if wf_transition=="None":
             wf_transition = None
         plain_format = False
         if self.request.get('is_plain_format', '') == 'on':
-            plain_format = True 
+            plain_format = True
         importfiles = self.request.get("importfiles")
         if importfiles=="Yes":
             zip = ZipFile(file)
@@ -105,7 +110,8 @@ class ReplicationManager(BrowserView):
              wf_transition = wf_transition,
              zip = zip,
              vocabularyvalue = vocabularyvalue,
-             plain_format = plain_format
+             plain_format = plain_format,
+             partial_commit_number=partial_commit_number,
          )
         if len(errors)==0:
             self.writeMessageOnPage(["All lines imported, %d object(s) created, %d object(s) modified." % (count_created, count_modified)])
@@ -143,6 +149,7 @@ class ReplicationManager(BrowserView):
         if not tmp:
             delete_grand_parent = True
             tmp = tempfile.mkdtemp()
+
         tmppath = tempfile.mkdtemp(dir=tmp)
 
         zippath = os.path.join(tmppath, 'export.zip')

@@ -4,13 +4,17 @@ Changelog
 
 1.1.8  (unreleased)
 ---------------------
-* fix blob files export/import [kiorky] 
+* fix blob files export/import [kiorky]
+* handle years < 999 [kiorky]
+* let commits be more incremental [kiorky]
+* fix export order [kiorky]
+* improve retry policy [kiorky]
 
 
 1.1.7  (2010-08-20)
 ---------------------
 * Adding comments exporter/searcher [kiorky]
- 
+
 
 1.1.6  (2010-07-30)
 ----------------------

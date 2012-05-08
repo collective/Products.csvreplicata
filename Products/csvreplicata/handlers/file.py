@@ -30,13 +30,22 @@ def get_zip_filename(filename):
             ''.join(filename.split('.')[:-1]),
             ''.join(filename.split('.')[-1])
         )
+        ufilename = ''
+        try:
+            ufilename = unicode(filenamepref)
+        except:
+            ufilename = unicode(filenamepref.decode('utf-8'))
         zip_filename = '%s%s%s' % (
-            normalizeString(filenamepref, 
-                            encoding='utf-8'),
-            '.', filenamesuf)
+                ufilename,
+                '.', filenamesuf)
     else:
+        ufilename = ''
+        try:
+            ufilename = unicode(filename)
+        except:
+            ufilename = unicode(filename.decode('utf-8'))
         zip_filename = normalizeString(
-            filename,
+            ufilename,
             encoding='utf-8') 
     return zip_filename
         
@@ -56,7 +65,7 @@ class CSVFile(CSVdefault):
             # zip module encode filename with latin1 format !
             # we provide a normalize string to avoid encoding zipe filenames problems
             filename = f.filename
-            zip_filename = None
+            zip_filename = ''
             if not filename:
                 # fallback to id
                 try:
@@ -80,7 +89,7 @@ class CSVFile(CSVdefault):
 
                 full_path = os.path.join(parent_path, zip_filename)
                 zip.writestr(full_path, fdata)
-            return filename
+            return zip_filename
 
     def set(self, obj, field, value, context=None, zip=None, parent_path = ''):
         if value == '':
