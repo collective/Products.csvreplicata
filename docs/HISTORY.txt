@@ -2,8 +2,8 @@ Changelog
 ===========
 
 
-1.1.8  (unreleased)
----------------------
+1.1.8 (2012-05-28)
+------------------
 * fix blob files export/import [kiorky]
 * handle years < 999 [kiorky]
 * let commits be more incremental [kiorky]
