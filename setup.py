@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 import sys
 
-version = '1.1.7'
+version = '1.1.8dev'
 
 setupdir = os.path.abspath(
     os.path.dirname(__file__)
