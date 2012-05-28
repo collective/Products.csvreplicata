@@ -28,7 +28,7 @@ Changelog
 
 1.1.5  (2010-07-29)
 -------------------
-* Fix unittest for plone4 msgid changes [kiorky]
+* Fix unittest for plone4 msgid changes [kiorky]
 * Implement import plugins [kiorky]
 * Add a meta.zcml with some basic plugins, like for wf state export/import [kiorky]
 * Rename objects for consistency purpose [kiorky]
@@ -43,7 +43,7 @@ Changelog
 * Fix setSubject [kiorky]
 
 1.1.3  (2010-01-27)
-------------------
+--------------------
 
 * Fixed missing import of interface.implements in browser.manager [fRiSi]
 
