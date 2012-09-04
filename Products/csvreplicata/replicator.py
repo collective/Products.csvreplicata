@@ -292,7 +292,8 @@ class Replicator(object):
             types = getPortalTypes(self.context)
 
             # read parameters
-            csvtool = getToolByName(self.context, "portal_csvreplicatatool")
+            csvtool = getToolByName(
+                self.context, "portal_csvreplicatatool")
             if plain_format is None:
                 plain_format = csvtool.getPlainFormat()
             if encoding is None:
@@ -717,7 +718,6 @@ class Replicator(object):
                      exportable_objects,
                      zip=None):
         # export content
-
         types = []
         fields = ['startpoint', 'replicata_export_date',]
         startpoint = "/".join(self.context.getPhysicalPath()).encode(encoding)
@@ -763,10 +763,14 @@ class Replicator(object):
         writer.writerow(labelsmapping)
 
         # export content
+
         for index, obj in enumerate(exportable_objects):
             if obj == self.context : continue
             # search plugins that can add cells to our objects
-            plugins = list(getAdapters([self, obj], ICSVReplicataExportImportPlugin))
+            plugins = list(
+                getAdapters(
+                    [self, obj], 
+                    ICSVReplicataExportImportPlugin))
             type_info = str(obj.getTypeInfo().id)
             # get type fields
             currentFieldsAndLabels = self.getTypeFields(type_info)
@@ -785,9 +789,10 @@ class Replicator(object):
             # fetch the possible objecvalues handled by plugins
             for pluginid, plugin in plugins:
                 plugin.fill_values(plugins_values, currentpluginfields)
-            values_row = self.getObjectValues(obj,
-                                              current_specific_fields,
-                                              zip) + plugins_values
+            values_row = self.getObjectValues(
+                obj,
+                current_specific_fields,
+                zip) + plugins_values
             for i, value in enumerate(values_row[:]):
                 if isinstance(value, basestring):
                     # byte but not utf-9 yet
@@ -838,7 +843,9 @@ class Replicator(object):
         for index, obj in enumerate(exportable_objects):
             if obj == self.context : continue
             # search plugins that can add cells to our objects
-            plugins = list(getAdapters([self, obj], ICSVReplicataExportImportPlugin))
+            plugins = list(
+                getAdapters([self, obj], 
+                            ICSVReplicataExportImportPlugin))
             type_info = str(obj.getTypeInfo().id)
             if not(type_info == currenttype):
                 currenttype = type_info
@@ -908,7 +915,8 @@ class Replicator(object):
                              ('type'  , 'Content type')]
         types = {}
         try:
-            attool = getToolByName(self.context, 'archetype_tool')
+            attool = getToolByName(self.context, 
+                                   'archetype_tool')
             types = getPortalTypes(self.context)
         except Exception, e:
             pass
@@ -926,7 +934,7 @@ class Replicator(object):
         else:
             schematas = []
         notExportableFieldClasses = csvtool.getExcludedfieldsclasses()
-        notExportableFields = csvtool.getExcludedfields()
+        notExportableFields = csvtool.getNonExportableFields()
         at_class = at['klass']
         for schemata in schematas:
             fields = at_class.schema.getSchemataFields(schemata)
@@ -969,7 +977,8 @@ class Replicator(object):
             h = handlers.get(otype, handlers['default_handler'])
             # XXX:on plone25, 'allowDiscussion' is stored in a stringfield, force to be bool.
             if f == 'allowDiscussion':
-                h = handlers.get('Products.Archetypes.Field.BooleanField')
+                h = handlers.get(
+                    'Products.Archetypes.Field.BooleanField')
             handler = h['handler_class']
             if h['file']:
                 v = handler.get(obj, f, context=self, zip=zip, parent_path=parent_path)

@@ -5,14 +5,7 @@ Changelog
 1.1.10 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
-
-1.1.9 (2012-05-28)
-------------------
-
-- Nothing changed yet.
-
+- Better non exportable types[kiorky]
 
 1.1.8 (2012-05-28)
 ------------------

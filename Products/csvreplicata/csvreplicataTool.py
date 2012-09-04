@@ -76,7 +76,9 @@ schema = Schema(
         ),
         LinesField(
             name='excludedfields',
-            default=['id', 'locallyAllowedTypes', 'constrainTypesMode',
+            default=['id', 
+                     'locallyAllowedTypes', 
+                     'constrainTypesMode',
                      'immediatelyAddableTypes'],
             widget=LinesField._properties['widget'](
                 label='Excludedfields',
@@ -322,6 +324,10 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         """
         """
         del(self.handlers[key])
+
+    def getNonExportableFields(self):
+        return (self.getExcludedfields() 
+                + ('tableContents',))
 
 registerType(csvreplicataTool, PROJECTNAME)
 # end of class csvreplicataTool
