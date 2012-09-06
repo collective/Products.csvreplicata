@@ -6,6 +6,7 @@ Changelog
 -------------------
 
 - Better non exportable types[kiorky]
+- "better references restore [kiorky]
 
 1.1.8 (2012-05-28)
 ------------------
