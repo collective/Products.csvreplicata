@@ -168,9 +168,14 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
 
         ##code-section constructor-footer #fill in your manual code here
         self.setTitle('CSV Replicator tool')
-        self.replicabletypes = {}
+        self.replicabletypes = PersistentMapping()
         self.handlers = {}
         ##/code-section constructor-footer
+
+    @property
+    def dreplicabletypes(self):
+        return dict(self.replicabletypes)
+
 
     def manage_afterAdd(self, item, container):
         """ initialize handlers with appconfig HANDLERS values"""
@@ -226,7 +231,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
                 del currentreplicablestypes[k]
 
         # save of the new values
-        self.replicabletypes = currentreplicablestypes
+        self.replicabletypes.update(currentreplicablestypes)
 
         # Redirection of the page now that the treatment is done
         REQUEST.RESPONSE.redirect(self.absolute_url()+'/csv_settings')
@@ -289,7 +294,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
                 if currentreplicablestypes.has_key(t):
                     del currentreplicablestypes[t]
 
-        self.replicabletypes = currentreplicablestypes
+        self.replicabletypes.update(currentreplicablestypes)
 
         # Redirection of the page now that the treatment is done
         REQUEST.RESPONSE.redirect(self.absolute_url()+'/csv_settings')
@@ -297,7 +302,7 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     def clearReplicableTypes(self):
         """
         """
-        self.replicabletypes = {}
+        self.replicabletypes.clear()
 
     def printReplicableTypes(self):
         """
@@ -328,6 +333,16 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
     def getNonExportableFields(self):
         return (self.getExcludedfields() 
                 + ('tableContents',))
+
+    def fullactivation(self):
+        types = getPortalTypes(self)
+        self.replicabletypes.update(
+            dict(
+                [(t, self.getTypeSchematas(t)) 
+                 for t in types])
+        )
+
+
 
 registerType(csvreplicataTool, PROJECTNAME)
 # end of class csvreplicataTool

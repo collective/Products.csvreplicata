@@ -86,8 +86,6 @@ def postInstall(context):
     site = context.getSite()
 
 
-
-
 def importcsvStep(context):
     """This step give you a way to import content in your website with
     csvreplicata.
@@ -121,7 +119,7 @@ def importcsvStep(context):
     replicatacfg = context.openDataFile('replicata.cfg')
     replicatacsv = context.openDataFile('replicata.csv')
     replicatazip = context.openDataFile('replicata.zip')
-    if replicatacfg is None or replicatacsv is None:
+    if replicatazip is None and replicatacsv is None:
         return
     site = context.getSite()
     wftool = getToolByName(site, 'portal_workflow')
@@ -135,23 +133,27 @@ def importcsvStep(context):
     #defaults system of configparser just sucks, so set values
     Config.add_section("replicable_types")
     Config.add_section("settings")
-    Config.set("replicable_types", "Folder","default")
-    Config.set("replicable_types", "Document","default")
     Config.set("settings", "encoding","utf-8")
-    Config.set("settings", "delimiter",",")
+    Config.set("settings", "delimiter",";")
     Config.set("settings", "stringdelimiter",'"')
-    Config.set("settings", "datetimeformat","%d/%m/%Y")
+    Config.set("settings", "datetimeformat","%d/%m/%Y %H:%M:%S")
     Config.set("settings", "wf_transition", "publish")
     Config.set("settings", "conflict_winner","SERVER")
     Config.set("settings", "global_path","")
     Config.set("settings", "ignore_content_errors","false")
-    Config.set("settings", "plain_format","false")
-    Config.read(replicatacfg.name)
+    Config.set("settings", "plain_format","true")
+    if replicatacfg is not None:
+        Config.read(replicatacfg.name)
     options = Config.items('replicable_types', raw=True)
     replicable_types = {}
     for option in options:
         replicable_types[option[0].title()] = option[1].split(',')
-    csvreplicatatool.replicabletypes = replicable_types
+    if replicable_types:
+        csvreplicatatool.replicabletypes = replicable_types
+    else:
+        csvreplicatatool.replicabletypes = old_replicabletypes_settings
+
+
 
     #build kwargs of csvimport method.
     kwargs = {}

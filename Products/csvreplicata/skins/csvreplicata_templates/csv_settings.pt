@@ -167,10 +167,10 @@
                         <tal:block 	tal:define="types here/portal_csvreplicatatool/getPortalTypeNames"
                     				tal:repeat="t types">
                     		<option	tal:content="python:t[0]"
-                    				tal:condition="python:t[0] in here.replicabletypes.keys()"
+                    				tal:condition="python:t[0] in here.dreplicabletypes.keys()"
                     				tal:attributes="value python:t[1]" selected>Type Name</option>
                     		<option	tal:content="python:t[0]"
-                    				tal:condition="python:not t[0] in here.replicabletypes.keys()"
+                    				tal:condition="python:not t[0] in here.dreplicabletypes.keys()"
                     				tal:attributes="value python:t[1]">Type Name</option>
                     	</tal:block>
 					</select>
@@ -208,10 +208,10 @@
                     	    		<tal:block	tal:define="schematas python:here.getTypeSchematas(t)"
                     							tal:repeat="s schematas">
                     					<option	tal:content="python:s"
-                    							tal:condition="python:s in here.replicabletypes[t]"
+                    							tal:condition="python:s in here.dreplicabletypes[t]"
                     							tal:attributes="value python:s" selected>Schemata Name</option>
                     					<option	tal:content="python:s"
-                    					        tal:condition="python:not s in here.replicabletypes[t]"
+                    					        tal:condition="python:not s in here.dreplicabletypes[t]"
                     							tal:attributes="value python:s">Schemata Name</option>
                     				</tal:block>
 							</select>

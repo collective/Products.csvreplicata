@@ -228,7 +228,7 @@
 									<tal:block	tal:define="types here/portal_csvreplicatatool/getPortalTypeNames"
 	               								tal:repeat="t types">
 										<option	tal:content="python:t[0]"
-                    							tal:condition="python:t[0] in here.portal_csvreplicatatool.replicabletypes.keys()"
+                    							tal:condition="python:t[0] in here.portal_csvreplicatatool.dreplicabletypes.keys()"
                     							tal:attributes="value python:t[1]" selected>Type Name</option>
                 					</tal:block>
                 			</select>
