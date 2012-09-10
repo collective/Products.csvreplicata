@@ -25,7 +25,7 @@ def get_path(context, path):
     ppath = '/'.join(portal.getPhysicalPath())
     cpath = '/'.join(context.getPhysicalPath())
     qpath = path
-    if not qpath.startswith(ppath):
+    if not qpath.startswith(ppath+'/'):
         if qpath.startswith('/'):
             c = ppath
             qpath = qpath.strip('/')
@@ -57,11 +57,11 @@ def get_path(context, path):
     # plone site
     if target:
         targetpath = '/'.join(target.getPhysicalPath())
-        if not targetpath.startswith(ppath):
+        if not targetpath.startswith(ppath+'/'):
             target = None 
     if (path.startswith('/') 
         and not target
-        and not path.startswith(ppath) 
+        and not path.startswith(ppath+'/') 
         and path.count('/') > 1):
         parts = path.split('/')
         rparts = parts[2:]
@@ -112,5 +112,7 @@ class CSVReference(CSVdefault):
                         path + " cannot be found"
                     )
         self.store(field, obj, ref)
+
+
 
 
