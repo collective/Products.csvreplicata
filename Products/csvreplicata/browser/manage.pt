@@ -25,7 +25,7 @@
            </h1>
          </tal>
 
-		<form tal:condition="python:not(here.Type()=='Smart Folder')" action="@@csvimport" method="POST" enctype="multipart/form-data">
+		<form tal:condition="python:not(here.Type() in ['Collection', 'Smart Folder'])" action="@@csvimport" method="POST" enctype="multipart/form-data">
 			<fieldset style="float: left; margin-right: 1em;">
 				<legend for="formElements">Import</legend>
 					<div class="field">
@@ -152,7 +152,7 @@
 		<form action="@@csvexport" method="POST">
 			<fieldset style="float: left; margin-right: 1em;">
 				<legend>Export</legend>
-					<tal:folderonly tal:condition="python:not(here.Type()=='Smart Folder')">
+					<tal:folderonly tal:condition="python:not(here.Type() in ['Collection', 'Smart Folder'])">
 						<div class="field">
 							<div class="widget">
 								<label for="formElements">Workflow states</label>

@@ -658,11 +658,11 @@ class Replicator(object):
         portal = self.context.portal_url.getPortalObject()
 
         if exportable_content_types is not None:
-            if self.context.Type() == "Smart Folder":
+            if self.context.Type() in ["Collection", "Smart Folder"]:
                 all = self.context.queryCatalog(full_objects=True)
                 exportable_objects = []
                 for o in all:
-                    if o.Type() in exportable_content_types:
+                    if o.portal_type in exportable_content_types:
                         exportable_objects.append(o)
             else:
                 query = {'portal_type': exportable_content_types}
