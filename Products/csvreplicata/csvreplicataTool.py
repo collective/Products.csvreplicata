@@ -202,7 +202,10 @@ class csvreplicataTool(UniqueObject, BaseContent, BrowserDefaultMixin):
         self.setDateTimeFormat(REQUEST.get('datetimeformat'));
         self.setTempPath(REQUEST.get('tempPath'))
         self.setPlainFormat(REQUEST.get('is_plain_format', '') == 'on')
-        self.setPartialCommitNumber(int(REQUEST.get('partial_commit_number', '')))
+        partial_commit_number = REQUEST.get('partial_commit_number', '')
+        if partial_commit_number:
+            partial_commit_number = int(partial_commit_number)
+        self.setPartialCommitNumber(partial_commit_number)
         # Redirection of the page now that the treatment is done
         REQUEST.RESPONSE.redirect(self.absolute_url()+'/csv_settings')
 
