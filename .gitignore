@@ -1,2 +1,14 @@
 *.pyc
 *.egg-info
+
+.installed.cfg
+.minitagecfg/
+.mr.developer.cfg
+b.sh
+bin/
+develop-eggs/
+minitage.base.cfg
+minitage.test-4.2.x.cfg
+parts/
+plone.env
+
