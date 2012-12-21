@@ -7,6 +7,9 @@ Changelog
 
 - Better non exportable types[kiorky]
 - "better references restore [kiorky]
+* fixed error (invalid literal for int) [potar]
+* fixed compatibility with SmartFolder [potar]
+
 
 1.1.8 (2012-05-28)
 ------------------
