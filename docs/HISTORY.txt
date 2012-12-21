@@ -5,141 +5,141 @@ Changelog
 1.1.11 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- fix rst markup
 
 
 1.1.10 (2012-12-21)
 -------------------
 
 - Better non exportable types[kiorky]
-- "better references restore [kiorky]
-* fixed error (invalid literal for int) [potar]
-* fixed compatibility with SmartFolder [potar]
+- better references restore [kiorky]
+- fixed error (invalid literal for int) [potar]
+- fixed compatibility with SmartFolder [potar]
 
 
 1.1.8 (2012-05-28)
 ------------------
-* fix blob files export/import [kiorky]
-* handle years < 999 [kiorky]
-* let commits be more incremental [kiorky]
-* fix export order [kiorky]
-* improve retry policy [kiorky]
+- fix blob files export/import [kiorky]
+- handle years < 999 [kiorky]
+- let commits be more incremental [kiorky]
+- fix export order [kiorky]
+- improve retry policy [kiorky]
 
 
 1.1.7  (2010-08-20)
 ---------------------
-* Adding comments exporter/searcher [kiorky]
+- Adding comments exporter/searcher [kiorky]
 
 
 1.1.6  (2010-07-30)
 ----------------------
-* Fix importObject (obj referenced before assignment) [danjacka]
+- Fix importObject (obj referenced before assignment) [danjacka]
 
 1.1.5  (2010-07-29)
 -------------------
-* Fix unittest for plone4 msgid changes [kiorky]
-* Implement import plugins [kiorky]
-* Add a meta.zcml with some basic plugins, like for wf state export/import [kiorky]
-* Rename objects for consistency purpose [kiorky]
-* Fix some Acquisition bugs [kiorky]
-* Support blobstorage [kiorky]
+- Fix unittest for plone4 msgid changes [kiorky]
+- Implement import plugins [kiorky]
+- Add a meta.zcml with some basic plugins, like for wf state export/import [kiorky]
+- Rename objects for consistency purpose [kiorky]
+- Fix some Acquisition bugs [kiorky]
+- Support blobstorage [kiorky]
 
 1.1.4  (2010-03-05)
 -------------------
 
-* fix some encoding issues with file handler [kiorky]
-* better plain format import [kiorky]
-* Fix setSubject [kiorky]
+- fix some encoding issues with file handler [kiorky]
+- better plain format import [kiorky]
+- Fix setSubject [kiorky]
 
 1.1.3  (2010-01-27)
 --------------------
 
-* Fixed missing import of interface.implements in browser.manager [fRiSi]
+- Fixed missing import of interface.implements in browser.manager [fRiSi]
 
 1.1.2  (2010-01-27)
 ---------------------
 
 
-* Fix silly empty list bug in replicator.csvimport prototype. [kiorky]
+- Fix silly empty list bug in replicator.csvimport prototype. [kiorky]
 
-* fixed missing import of interface.implements in browser.manager [fRiSi]
+- fixed missing import of interface.implements in browser.manager [fRiSi]
 
-* Fix unicode error with reference fields [kiorky]
+- Fix unicode error with reference fields [kiorky]
 
-* Add support for temporary export path [kiorky]
+- Add support for temporary export path [kiorky]
 
-* Add support for flattened CSV Files [kiorky]
+- Add support for flattened CSV Files [kiorky]
 
-* Add tests, and tests infrastructure [kiorky]
+- Add tests, and tests infrastructure [kiorky]
 
-* Add Stream (Files) Iterators not to overhead the RAM [kiorky]
+- Add Stream (Files) Iterators not to overhead the RAM [kiorky]
 
 1.1.1 - Unreleased
 -------------------
 
-* remove five:traversable directive (deprecated in plone3) [toutpt]
+- remove five:traversable directive (deprecated in plone3) [toutpt]
 
-* Add default config for importcsvStep [toutpt]
+- Add default config for importcsvStep [toutpt]
 
-* importcsvStep now depend on plone-final step [toutpt]
+- importcsvStep now depend on plone-final step [toutpt]
 
-* option ``ignore_content_errors`` added to import step config (set it to true) and to the replicator methods. It allows to log errors when setting fields instead of raising exceptions and stop. [kiorky]
+- option ``ignore_content_errors`` added to import step config (set it to true) and to the replicator methods. It allows to log errors when setting fields instead of raising exceptions and stop. [kiorky]
 
 
 
 1.1  (2009-10-17)
 -----------------
 
-* A new import step to use csvreplicata to import contents [toutpt]
+- A new import step to use csvreplicata to import contents [toutpt]
 
-* Fix creationflag issue [toutpt]
+- Fix creationflag issue [toutpt]
 
-* plugins system. Export other things than AT. take a look at interfaces and adpaters [kiorky]
+- plugins system. Export other things than AT. take a look at interfaces and adpaters [kiorky]
 
-* some encoding bugs fixed [kiorky]
+- some encoding bugs fixed [kiorky]
 
-* datetime format settings in the tool [kiorky]
+- datetime format settings in the tool [kiorky]
 
-* images/files created with folder structure in export [kiorky]
+- images/files created with folder structure in export [kiorky]
 
-* Plone 2.5 compatibility back [kiorky]
+- Plone 2.5 compatibility back [kiorky]
 
 1.0.7  (2009-07-15)
 --------------------
 
-* Prevent fixTools from running outside of the context of Products.csvreplicata [pigeonflight]
+- Prevent fixTools from running outside of the context of Products.csvreplicata [pigeonflight]
 
-* Fix export when data value is not ascii [yboussard]
+- Fix export when data value is not ascii [yboussard]
 
 1.0.6
 -------
 
-* support vocabulary defined as object method [Jim BAACK]
+- support vocabulary defined as object method [Jim BAACK]
 
 1.0.5
 -----
 
-* fix bug crc32 with large media files
-* when you set a CSVHandledTypesSchematas default is automatically preselected for user convenience [Jean-Philippe CAMGUILHEM]
+- fix bug crc32 with large media files
+- when you set a CSVHandledTypesSchematas default is automatically preselected for user convenience [Jean-Philippe CAMGUILHEM]
 
 1.0.4
 -----
 
-* Uninstall problem fix
+- Uninstall problem fix
 
   IMPORTANT NOTE: when migrating from previous versions, you need to uninstall csvreplicata and then reinstall csvreplicata. [Jean-Philippe CAMGUILHEM]
 
 1.0.3
 -----
 
-* Custom handlers can be now implemented outside the product, and dynamically declared to the csvreplicata tool. [Jean-Philippe CAMGUILHEM]
+- Custom handlers can be now implemented outside the product, and dynamically declared to the csvreplicata tool. [Jean-Philippe CAMGUILHEM]
 
 1.0.2
 -----
 
-* Initial release.[Eric BREHAULT / Christophe SAUTHIER]
+- Initial release.[Eric BREHAULT / Christophe SAUTHIER]
 
 1.0
 ---
 
-* Unreleased
+- Unreleased
