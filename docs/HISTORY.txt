@@ -2,7 +2,7 @@ Changelog
 ===========
 
 
-1.1.12 (unreleased)
+1.1.12 (2013-04-12)
 -------------------
 
 - Support for  Products.ATExtensions formattable names field [kiorky]
