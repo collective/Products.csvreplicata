@@ -5,8 +5,10 @@ Changelog
 1.1.10 (unreleased)
 -------------------
 
-- Better non exportable types[kiorky]
-- "better references restore [kiorky]
+- Better non exportable types [kiorky]
+- better references restore [kiorky]
+- Support for  Products.ATExtensions formattable names field [kiorky]
+- Again, better error traces [kiorky]
 
 1.1.8 (2012-05-28)
 ------------------
