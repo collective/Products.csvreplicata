@@ -11,6 +11,7 @@ __docformat__ = 'plaintext'
 
 import logging
 from DateTime import DateTime
+import traceback
 from time import strptime
 
 from pprint import pprint
@@ -391,19 +392,21 @@ class Replicator(object):
 
                         except csvreplicataNonExistentContainer, e:
                             needs_another_loop = True
-
                         except csvreplicataMissingFileInArchive, e:
-                            errors.append("Error in line "+str(line) + ": %s" % (e))
+                            trace = traceback.format_exc()
+                            errors.append("Error in line "+str(line) + ": %s %s" % (e, trace))
 
                         except Exception, e:
-                             errors.append("Error in line "+str(line) + \
-                                           ": %s" % (e))
+                            trace = traceback.format_exc()
+                            errors.append("Error in line "+str(line) + ": %s %s" % (e, trace))
+                        except csvreplicataMissingFileInArchive, e:
+                            errors.append("Error in line "+str(line) + ": %s" % (e))
                             #raise Exception, "Error in csv file line "+str(line) + ": %s \n%s" % (e, row)
                 else:
                     label_line = False
             # commit at the end of the loop if we want partial commits
             if partial_commit_number and (bool(needs_another_loop)==True):
-                transaction.commit() 
+                transaction.commit()
             self.flag = needs_another_loop
             return (count_created, count_modified, export_date, errors)
 
@@ -546,18 +549,19 @@ class Replicator(object):
                                 handler += '\thandler: %s\n' % hc.__class__
                             if hfile:
                                 handler += '\thandlerfile: %s\n' % hfile
-
+                        trace = traceback.format_exc()
                         logger.warning(
                             'Oops:\n'
                             '%s'
                             '%s'
                             '%s'
-                            '\tException: %s\n'
+                            '\tException: %s\n%s\n'
                             '\tMessage: %s\n' % (
                                 where,
                                 what,
                                 handler,
                                 e.__class__,
+                                trace,
                                 e
                             )
                         )
@@ -610,11 +614,13 @@ class Replicator(object):
                          '/'.join(obj.getPhysicalPath()),
                          obj.Title(),
                      )
+                     trace = traceback.format_exc()
                      logger.warning(
                          'Plugin Oops:\n'
                          '%s\n'
                          '%s\n'
-                         '%s\n' % (e, pluginid, where)
+                         '%s\n'
+                         '%s\n' % (e, pluginid, where, trace)
                      )
         return (is_new_object, modified, incomplete)
 
@@ -769,7 +775,7 @@ class Replicator(object):
             # search plugins that can add cells to our objects
             plugins = list(
                 getAdapters(
-                    [self, obj], 
+                    [self, obj],
                     ICSVReplicataExportImportPlugin))
             type_info = str(obj.getTypeInfo().id)
             # get type fields
@@ -844,7 +850,7 @@ class Replicator(object):
             if obj == self.context : continue
             # search plugins that can add cells to our objects
             plugins = list(
-                getAdapters([self, obj], 
+                getAdapters([self, obj],
                             ICSVReplicataExportImportPlugin))
             type_info = str(obj.getTypeInfo().id)
             if not(type_info == currenttype):
@@ -915,7 +921,7 @@ class Replicator(object):
                              ('type'  , 'Content type')]
         types = {}
         try:
-            attool = getToolByName(self.context, 
+            attool = getToolByName(self.context,
                                    'archetype_tool')
             types = getPortalTypes(self.context)
         except Exception, e:

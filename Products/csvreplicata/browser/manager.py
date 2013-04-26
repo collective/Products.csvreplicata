@@ -117,7 +117,12 @@ class ReplicationManager(BrowserView):
             self.writeMessageOnPage(["All lines imported, %d object(s) created, %d object(s) modified." % (count_created, count_modified)])
             self.writeMessageOnPage(["This CSV file has been produced on "+str(export_date)+". To avoid inconsistencies, do not import this file anymore. It is preferable to export a new one."])
         else:
-            self.writeMessageOnPage(["%d object(s) created, %d object(s) modified." % (count_created, count_modified)])
+            for i in errors:
+                logger.error(i)
+            errors.insert(
+                0,
+                "%d object(s) created, %d object(s) modified." % (
+                count_created, count_modified))
             self.writeMessageOnPage(errors, error = True)
 
         self.request.RESPONSE.redirect(self.context.absolute_url()+'/@@csvreplicata')

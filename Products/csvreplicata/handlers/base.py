@@ -22,8 +22,19 @@ from Products.CMFCore.utils import getToolByName
 
 from Products.csvreplicata.exceptions import *
 
+try:
+    from Products.ATExtensions import field
+    HAS_PATE = True
+except:
+    HAS_PATE=False
+
 import logging
 logger = logging.getLogger('HANDLER')
+
+try:
+    import json
+except:
+    import simplejson as json
 
 
 def get_padded_year(v, format):
@@ -204,7 +215,10 @@ class CSVLines(CSVdefault):
         if v is None:
             return ''
         else:
+            if isinstance(v, (tuple, set)):
+                v = list(v)
             return '\n'.join(v)
+
 
     def set(self, obj, field, value, context=None):
         if value=='':
@@ -273,4 +287,35 @@ class CSVDateTime(CSVdefault):
                 self.store(field, obj, value)
             except DateTime.DateTimeError, e:
                 raise csvreplicataException, v + " is not a valid date/time"
+
+
+class CSVPateFormattableNames(CSVLines):
+    """ """
+    def get(self, obj, field, context=None):
+        """
+        """
+        v = obj.Schema().getField(field).get(obj)
+        if v is None:
+            return ''
+        else:
+            return '\n'.join([repr(a) for a in v])
+
+    def set(self, obj, field, value, context=None):
+        if value == '':
+            value = None
+        else:
+            value = value.split('\n')
+            values = []
+            for v in [v for v in value if v.strip()]:
+                if v:
+                    if (
+                        v[-1] == "}"
+                        and v[0] == "{"
+                        and 'middlename' in v
+                        and 'firstname' in v
+                        and 'lastname' in v
+                    ):
+                        values.append(eval(v))
+            if values:
+                self.store(field, obj, values)
 

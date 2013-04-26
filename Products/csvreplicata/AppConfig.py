@@ -25,5 +25,6 @@ HANDLERS = {
     'Products.AttachmentField.AttachmentField.AttachmentField': {'handler_class' : file.CSVFile(), 'file' : True},
     'Products.Maps.field.LocationField': {'handler_class' : maps.CSVMap(), 'file' : False},
     'Products.ATBackRef.BackReferenceField':  {'handler_class' : reference.CSVReference(), 'file' : False},
+    'Products.ATExtensions.field.formattablenames.FormattableNamesField':  {'handler_class' : base.CSVPateFormattableNames(), 'file' : False},
 }
 
