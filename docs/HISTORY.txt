@@ -5,7 +5,7 @@ Changelog
 1.1.13 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- fix release
 
 
 1.1.12 (2013-04-12)
