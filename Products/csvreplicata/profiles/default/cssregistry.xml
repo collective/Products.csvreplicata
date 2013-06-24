@@ -10,7 +10,7 @@
              id="myfancystyle.css"
              media="all"
              rel="stylesheet"
-             rendering="import"/>
+             rendering="link"/>
  -->
 
  <!-- ##code-section cssregistry.xml -->
