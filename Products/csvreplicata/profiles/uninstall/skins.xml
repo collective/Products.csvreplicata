@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<object name="portal_skins"
+        meta_type="Plone Skins Tool"
+        allow_any="False"
+        cookie_persistence="False"
+        request_varname="plone_skin">
+
+ <object remove="True"
+         name="csvreplicata_templates"
+         meta_type="Filesystem Directory View"
+         directory="csvreplicata/skins/csvreplicata_templates"/>
+ <object remove="True"
+         name="csvreplicata_images"
+         meta_type="Filesystem Directory View"
+         directory="csvreplicata/skins/csvreplicata_images"/>
+ 
+ <skin-path name="*">
+  <layer remove="True"
+         name="csvreplicata_templates"/>
+  <layer remove="True" 
+         name="csvreplicata_images"/>
+  <layer remove="True"
+         name="csvreplicata_styles"/>
+ </skin-path>
+
+</object>

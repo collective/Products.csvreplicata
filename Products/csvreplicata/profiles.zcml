@@ -17,6 +17,13 @@
       />
   
   <!-- ##code-section profiles.zcml #fill in your manual code here -->
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="csvreplicata uninstall"
+      directory="profiles/uninstall"
+      description="Extension profile for csvreplicata."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
   <!-- ##/code-section profiles.zcml -->
 
 </configure>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tool-setup>
+ <required remove="True"
+           tool_id="portal_csvreplicatatool"
+           class="Products.csvreplicata.csvreplicataTool.csvreplicataTool"/>
+</tool-setup>
