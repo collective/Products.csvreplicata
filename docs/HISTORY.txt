@@ -8,6 +8,9 @@ Changelog
 - Add uninstall profile.
   [thet]
 
+- prevent UnicodeDecodeError: 'ascii' codec can't decode byte 0x84 in position 11: ordinal not in range(128) when exporting zip
+  [maartenkling]
+
 
 1.1.13 (2013-06-04)
 -------------------

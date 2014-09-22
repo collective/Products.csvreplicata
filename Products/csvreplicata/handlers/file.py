@@ -16,6 +16,7 @@ import logging
 from zope import interface
 
 from Products.CMFPlone.utils import normalizeString
+import unicodedata
 from Products.csvreplicata.exceptions import *
 from Products.csvreplicata.interfaces import ICSVFile
 
@@ -46,9 +47,9 @@ def get_zip_filename(filename):
             ufilename = unicode(filename.decode('utf-8'))
         zip_filename = normalizeString(
             ufilename,
-            encoding='utf-8') 
+            encoding='utf-8')
     return zip_filename
-        
+
 
 class CSVFile(CSVdefault):
     """
@@ -87,6 +88,7 @@ class CSVFile(CSVdefault):
 
                     fdata = str(f.data)
 
+                zip_filename = unicodedata.normalize('NFKD', unicode(zip_filename)).encode('ascii', 'ignore')
                 full_path = os.path.join(parent_path, zip_filename)
                 zip.writestr(full_path, fdata)
             return zip_filename
@@ -111,4 +113,3 @@ class CSVFile(CSVdefault):
             else:
                 raise csvreplicataPermissionException, \
                 "Insufficient privileges to modify this object and/or field"
-
