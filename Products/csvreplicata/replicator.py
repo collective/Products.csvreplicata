@@ -66,11 +66,17 @@ def P(item):
             item.getPhysicalPath())
 
 
-def get_brain_from_path(catalog, i):
-    return catalog.searchResults({
-        'path' : {"depth":0,
-                  'query':i},
-    })[0]
+def get_brain_from_path(catalog, i, fallback=False):
+    try:
+        return catalog.searchResults({
+            'path' : {"depth":0,
+                      'query':i},
+        })[0]
+    except Exception:
+        obj = catalog.restrictedTraverse(i)
+        if not fallback:
+            raise
+        return catalog.restrictedTraverse(i)
 
 
 def find_same_level_ancestors(itema, itemb):
@@ -92,7 +98,7 @@ def find_same_level_ancestors(itema, itemb):
     return ((bra, get_position(bra)),
             (brb, get_position(brb)))
 
-def get_container(i):
+def get_container(i, fallback=False):
     catalog = i.portal_catalog
     ppath = i.portal_url.getPortalPath()
     portal = i.portal_url.getPortalObject()
@@ -100,13 +106,13 @@ def get_container(i):
     if ppath == path:
         ret = portal
     else:
-        ret = get_brain_from_path(catalog, path)
+        ret = get_brain_from_path(catalog, path, fallback=fallback)
     return ret
 
 
 def get_contained(i):
     catalog = i.portal_catalog
-    path = '/'.join(i.getPath().split('/')[:-1])
+    path = '/'.join(P(i).split('/')[:-1])
     return [a.id for a in catalog.searchResults(
         {'path' : {"depth":1, 'query':path},
          'sort_on': 'getObjPositionInParent',
@@ -121,10 +127,10 @@ def get_reverse_position(i):
 
 def custom_sort(a, b):
     ka = "%s__SEP__%s"% (
-        P(get_container(a)), get_reverse_position(a)
+        P(get_container(a, fallback=True)), get_reverse_position(a)
     )
     kb = "%s__SEP__%s"% (
-        P(get_container(b)), get_reverse_position(b)
+        P(get_container(b, fallback=True)), get_reverse_position(b)
     )
     ret = 0
     if ka < kb:
@@ -803,7 +809,11 @@ class Replicator(object):
                 if isinstance(value, basestring):
                     # byte but not utf-9 yet
                     if not isinstance(value, unicode):
-                        values_row[i] = value.decode('utf-8')
+                        try:
+                            values_row[i] = value.decode('utf-8')
+                        except Exception:
+                            values_row[i] = u'INVALID DATA'
+                            logger.error('Cant export %s' % '/'.join(obj.getPhysicalPath()))
                     # any way in anycase, back to ASCII encoded
                     values_row[i] = values_row[i].encode(encoding)
             cf = currentfields + currentpluginfields
