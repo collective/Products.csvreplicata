@@ -5,6 +5,12 @@ Changelog
 1.1.14 (unreleased)
 -------------------
 
+- Log but do not crash string conversions errors
+  [kiorky]
+
+- Handle half indexed objects
+  [kiorky]
+
 - Add uninstall profile.
   [thet]
 
@@ -25,8 +31,6 @@ Changelog
 - Again, better error traces [kiorky]
 
 
-
->>>>>>> af6cc49cb43f53f13b1630d7860c198288392dc8
 1.1.11 (2012-12-21)
 -------------------
 
@@ -37,11 +41,7 @@ Changelog
 -------------------
 - Better non exportable types [kiorky]
 - better references restore [kiorky]
-<<<<<<< HEAD
-- fixed error (invalid literal for int) [potar]
 - fixed compatibility with SmartFolder [potar]
-=======
->>>>>>> af6cc49cb43f53f13b1630d7860c198288392dc8
 
 1.1.8 (2012-05-28)
 ------------------
